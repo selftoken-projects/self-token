@@ -1,4 +1,4 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla external
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
@@ -6,19 +6,19 @@
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 interface ERC20Token {
-    function name() public constant returns (string);
-    function symbol() public constant returns (string);
-    function decimals() public constant returns (uint8);
-    function totalSupply() public constant returns (uint256);
-    function balanceOf(address owner) public constant returns (uint256);
-    function transfer(address to, uint256 amount) public returns (bool);
-    function transferFrom(address from, address to, uint256 amount) public returns (bool);
-    function approve(address spender, uint256 amount) public returns (bool);
-    function allowance(address owner, address spender) public constant returns (uint256);
+    function name() external constant returns (string);
+    function symbol() external constant returns (string);
+    function decimals() external constant returns (uint8);
+    function totalSupply() external constant returns (uint256);
+    function balanceOf(address owner) external constant returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external constant returns (uint256);
 
     // solhint-disable-next-line no-simple-event-func-name
     event Transfer(address indexed from, address indexed to, uint256 amount);

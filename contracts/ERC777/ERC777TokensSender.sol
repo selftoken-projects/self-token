@@ -6,7 +6,7 @@
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 interface ERC777TokensSender {
@@ -17,5 +17,5 @@ interface ERC777TokensSender {
         uint amount,
         bytes userData,
         bytes operatorData
-    ) public;
+    ) external;
 }

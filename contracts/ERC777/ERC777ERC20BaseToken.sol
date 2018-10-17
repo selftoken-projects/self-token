@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-pragma solidity 0.4.21;
+pragma solidity 0.4.24;
 
 
 import { ERC20Token } from "./ERC20Token.sol";
@@ -14,7 +14,7 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
     mapping(address => mapping(address => bool)) internal mAuthorized;
     mapping(address => mapping(address => uint256)) internal mAllowed;
 
-    function ERC777ERC20BaseToken(
+    constructor(
         string _name,
         string _symbol,
         uint256 _granularity,
@@ -68,7 +68,7 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
     /// @return `true`, if the approve can't be done, it should fail.
     function approve(address _spender, uint256 _amount) public erc20 returns (bool success) {
         mAllowed[msg.sender][_spender] = _amount;
-        Approval(msg.sender, _spender, _amount);
+        emit Approval(msg.sender, _spender, _amount);
         return true;
     }
 
@@ -94,13 +94,13 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
         internal
     {
         super.doSend(_operator, _from, _to, _amount, _userData, _operatorData, _preventLocking);
-        if (mErc20compatible) { Transfer(_from, _to, _amount); }
+        if (mErc20compatible) { emit Transfer(_from, _to, _amount); }
     }
 
     function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
         internal
     {
         super.doBurn(_operator, _tokenHolder, _amount, _holderData, _operatorData);
-        if (mErc20compatible) { Transfer(_tokenHolder, 0x0, _amount); }
+        if (mErc20compatible) { emit Transfer(_tokenHolder, 0x0, _amount); }
     }
 }
