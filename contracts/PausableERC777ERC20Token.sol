@@ -5,32 +5,19 @@ import { Pausable } from "openzeppelin-solidity/contracts/lifecycle/Pausable.sol
 
 
 /// @dev The owner can pause/unpause the token.
-/// When paused, all functions that may change data in the contract won't work.
+/// When paused, all functions that may change the token balances are prohibited.
+/// Function approve is prohibited too.
 contract PausableERC777ERC20Token is ERC777ERC20BaseToken, Pausable {
 
   // ERC777 methods
 
-  /// @dev We can not call super.send() because send() is external function
+  /// @dev We can not call super.send() because send() is an xternal function.
   /// We can only override it.
   function send(address _to, uint256 _amount, bytes _userData)
     external
     whenNotPaused
   {
     doSend(msg.sender, msg.sender, _to, _amount, _userData, "", true);
-  }
-
-  function authorizeOperator(address _operator)
-    public
-    whenNotPaused
-  {
-    super.authorizeOperator(_operator);
-  }
-
-  function revokeOperator(address _operator)
-    public
-    whenNotPaused
-  {
-    super.revokeOperator(_operator);
   }
 
   function operatorSend(address _from, address _to, uint256 _amount, bytes _userData, bytes _operatorData)
@@ -101,9 +88,9 @@ contract PausableERC777ERC20Token is ERC777ERC20BaseToken, Pausable {
   function approve(address _spender, uint256 _amount)
     public
     erc20
+    whenNotPaused
     returns (bool success)
   {
     return super.approve( _spender, _amount);
   }
-
 }
