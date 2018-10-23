@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
+import { AddressSet } from "./utils/AddressSet.sol";
 import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
 
 /// @title ERC777 ERC20 Token with Official Operators
 /// @author Roger-Wu
@@ -18,55 +18,52 @@ import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
 ///    operators will not be authorized operators for them. The token holder can still
 ///    authorize some of the official operators if they want.
 contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable {
-  using AddressUtils for address;
+  using AddressSet for AddressSet.Data;
 
-  mapping(address => bool) internal mIsOfficialOperator;
-  mapping(address => bool) internal mHasUserUnauthorizedOfficialOperators;
+  AddressSet.Data internal mOfficialOperatorSet;
+  mapping(address => bool) internal mIsRejectingOfficialOperators;
 
-  event OfficialOperatorAdded(address operator);
-  event OfficialOperatorRemoved(address operator);
-  event OfficialOperatorsAuthorizedByUser(address indexed user);
-  event OfficialOperatorsUnauthorizedByUser(address indexed user);
+  event AddedOfficialOperator(address operator);
+  event RemovedOfficialOperator(address operator);
+  event AuthorizedOfficialOperators(address indexed tokenHolder);
+  event UnauthorizedOfficialOperators(address indexed tokenHolder);
 
   /// @notice Add an address into the list of official operators.
   /// @param _operator The address of a new official operator.
   /// An official operator must be a contract.
   function addOfficialOperator(address _operator) public onlyOwner {
-    require(_operator.isContract(), "An official operator must be a contract.");
-    require(!mIsOfficialOperator[_operator], "_operator is already an official operator.");
+    require(!isRegularAddress(_operator));
 
-    mIsOfficialOperator[_operator] = true;
-    emit OfficialOperatorAdded(_operator);
+    /// revert if _operator is already in mOfficialOperatorSet
+    require(mOfficialOperatorSet.add(_operator));
+
+    emit AddedOfficialOperator(_operator);
   }
 
   /// @notice Delete an address from the list of official operators.
   /// @param _operator The address of an official operator.
   function removeOfficialOperator(address _operator) public onlyOwner {
-    require(mIsOfficialOperator[_operator], "_operator is not an official operator.");
+    /// revert if _operator is not in mOfficialOperatorSet
+    require(mOfficialOperatorSet.remove(_operator));
 
-    mIsOfficialOperator[_operator] = false;
-    emit OfficialOperatorRemoved(_operator);
-  }
-
-  /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
-  function unauthorizeOfficialOperators() public {
-    require(!mHasUserUnauthorizedOfficialOperators[msg.sender], "Official operators are already unauthorized by msg.sender.");
-
-    mHasUserUnauthorizedOfficialOperators[msg.sender] = true;
-    emit OfficialOperatorsUnauthorizedByUser(msg.sender);
+    emit RemovedOfficialOperator(_operator);
   }
 
   /// @notice Authorize all official operators to manage `msg.sender`'s tokens.
   function authorizeOfficialOperators() public {
-    require(mHasUserUnauthorizedOfficialOperators[msg.sender], "Official operators are already authorized by msg.sender.");
-
-    mHasUserUnauthorizedOfficialOperators[msg.sender] = false;
-    emit OfficialOperatorsAuthorizedByUser(msg.sender);
+    mIsRejectingOfficialOperators[msg.sender] = false;
+    emit AuthorizedOfficialOperators(msg.sender);
   }
 
-  /// @return true if the address is an official operator, false if not.
-  function isOfficialOperator(address _operator) public view returns(bool) {
-    return mIsOfficialOperator[_operator];
+  /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
+  function unauthorizeOfficialOperators() public {
+    mIsRejectingOfficialOperators[msg.sender] = true;
+    emit UnauthorizedOfficialOperators(msg.sender);
+  }
+
+  /// @return the list of all the official operators
+  function officialOperators() public view returns(address[]) {
+    return mOfficialOperatorSet.elements;
   }
 
   /// @notice Check whether the `_operator` address is allowed to manage the tokens held by `_tokenHolder` address.
@@ -76,7 +73,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   function isOperatorFor(address _operator, address _tokenHolder) public constant returns (bool) {
     return (
       (_operator == _tokenHolder)
-      || (!mHasUserUnauthorizedOfficialOperators[_tokenHolder] && mIsOfficialOperator[_operator])
+      || (!mIsRejectingOfficialOperators[_tokenHolder] && mOfficialOperatorSet.contains(_operator))
       || mAuthorized[_operator][_tokenHolder]
       || (mIsDefaultOperator[_operator] && !mRevokedDefaultOperator[_operator][_tokenHolder])
     );
