@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
+import { PausableERC777ERC20Token } from "./PausableERC777ERC20Token.sol";
 import { ApprovalRecipient } from "./ApprovalRecipient.sol";
 
-contract ERC777ERC20TokenWithApproveAndCall is ERC777ERC20BaseToken {
+contract ERC777ERC20TokenWithApproveAndCall is PausableERC777ERC20Token {
   /// Set allowance for other address and notify
   /// Allows `_spender` to spend no more than `_value` tokens on your behalf, and then ping the contract about it
   /// From https://www.ethereum.org/token
@@ -12,6 +12,7 @@ contract ERC777ERC20TokenWithApproveAndCall is ERC777ERC20BaseToken {
   /// @param _extraData some extra information to send to the approved contract
   function approveAndCall(address _spender, uint256 _value, bytes _extraData)
     public
+    whenNotPaused
     returns (bool success)
   {
     ApprovalRecipient spender = ApprovalRecipient(_spender);
