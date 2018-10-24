@@ -13,9 +13,10 @@ const should = require('chai')
 let tokenWithOfficialOperators;
 
 contract('ERC777ERC20TokenWithOfficialOperators', function (accounts) {
-    const [owner, buyer1, buyer2, buyer3, anyone] = accounts;
+    // const [owner, buyer1, buyer2, buyer3, anyone] = accounts;
 
     it("should deploy new contract", async function () {
         tokenWithOfficialOperators = await ERC777ERC20TokenWithOfficialOperators.new();
+        console.log(tokenWithOfficialOperators)
     });
 });
