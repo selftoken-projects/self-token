@@ -1,6 +1,12 @@
-contract Freezable is Ownable {
+pragma solidity ^0.4.25;
 
-  import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
+/// @title An inheritable extension for a contract to freeze accessibility of any specific addresses
+/// @author Jeff Hu
+/// @notice Have a contract inherited from this to use the modifiers: whenAccountFrozen(), whenAccountNotFrozen()
+/// @dev Concern: Ownable may cause multiple owners; You need to pass in msg.sender when using modifiers
+contract Freezable is Ownable {
 
   event AccountFrozen(address indexed _account);
   event AccountReleased(address indexed _account);
@@ -10,7 +16,7 @@ contract Freezable is Ownable {
   
   
    /**
-   * @dev Modifier to make a function callable only when the address is frozen.
+   * ///@dev Modifier to make a function callable only when the address is frozen.
    */
   modifier whenAccountFrozen(address _account) {
     require(frozenAccounts[_account] == true);
