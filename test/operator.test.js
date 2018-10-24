@@ -1,8 +1,10 @@
-const assertRevert = require("./helper/assertRevert");
-const ether = require("./helper/ether");
-const expectThrow = require("./helper/expectThrow");
+const ether = require('openzeppelin-solidity/test/helpers/ether');
+const ethGetBalance = require('openzeppelin-solidity/test/helpers/web3');
+const expectThrow = require("openzeppelin-solidity/test/helpers/expectThrow");
+const expectEvent = require("openzeppelin-solidity/test/helpers/expectEvent");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
+const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
 
 const should = require('chai')
@@ -10,10 +12,10 @@ const should = require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-let erc820Registry, selfToken;
+let erc820Registry, selfToken, batchSendOperator, tnx;
 
 contract('SelfToken', function (accounts) {
-    // const [owner, buyer1, buyer2, buyer3, anyone] = accounts;
+    // const [officialOperator1] = accounts;
 
     beforeEach(async function () {
         // use web3 1.0.0 instead of truffle's 0.20.6 web3
@@ -24,8 +26,27 @@ contract('SelfToken', function (accounts) {
         assert.ok(erc820Registry.$address);
     });
 
-    it("should deploy new contract", async function () {
+    it("should deploy new contracts", async function () {
         selfToken = await SelfToken.new();
-        console.log(selfToken)
+        batchSendOperator = await BatchSendOperator.new();
+        // console.log(selfToken)
     });
+
+    it("should add official operator", async function () {
+        await expectEvent.inTransaction(
+            selfToken.addOfficialOperator(batchSendOperator.address),
+            "OfficialOperatorAdded", {
+                operator: batchSendOperator.address
+            }
+        )
+    })
+
+    it("should remove official operator", async function () {
+        await expectEvent.inTransaction(
+            selfToken.removeOfficialOperator(batchSendOperator.address),
+            "OfficialOperatorRemoved", {
+                operator: batchSendOperator.address
+            }
+        )
+    })
 });
