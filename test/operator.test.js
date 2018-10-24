@@ -12,41 +12,113 @@ const should = require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-let erc820Registry, selfToken, batchSendOperator, tnx;
+let erc820Registry, selfToken, operator1, operator2, tnx;
 
 contract('SelfToken', function (accounts) {
-    // const [officialOperator1] = accounts;
+    const [user1] = accounts;
 
     beforeEach(async function () {
         // use web3 1.0.0 instead of truffle's 0.20.6 web3
         let _Web3 = require('web3'); // version 1.0.0
         let _web3 = new _Web3(web3.currentProvider)
 
-        erc820Registry = await ERC820Registry.deploy(_web3, accounts[0]);
+        erc820Registry = await ERC820Registry.deploy(_web3, user1);
         assert.ok(erc820Registry.$address);
     });
 
     it("should deploy new contracts", async function () {
         selfToken = await SelfToken.new();
-        batchSendOperator = await BatchSendOperator.new();
+        operator1 = await BatchSendOperator.new();
+        operator2 = await BatchSendOperator.new();
         // console.log(selfToken)
     });
 
-    it("should add official operator", async function () {
+    // note: add offical operator != authorize official operator
+    it("should add official operator & all official operator is authorized by default", async function () {
         await expectEvent.inTransaction(
-            selfToken.addOfficialOperator(batchSendOperator.address),
+            selfToken.addOfficialOperator(operator1.address),
             "OfficialOperatorAdded", {
-                operator: batchSendOperator.address
+                operator: operator1.address
             }
         )
+
+        // all official operator is authorized by default
+        assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
     })
 
     it("should remove official operator", async function () {
         await expectEvent.inTransaction(
-            selfToken.removeOfficialOperator(batchSendOperator.address),
+            selfToken.removeOfficialOperator(operator1.address),
             "OfficialOperatorRemoved", {
-                operator: batchSendOperator.address
+                operator: operator1.address
             }
         )
     })
+
+    it("can authorized all official operators after unauthorizing all", async function () {
+        // unauthorize all official operators
+        await expectEvent.inTransaction(
+            selfToken.unauthorizeOfficialOperators(),
+            "OfficialOperatorsUnauthorizedByUser", {
+                user: user1
+            }
+        );
+
+        // authorize back all official operators
+        await expectEvent.inTransaction(
+            selfToken.authorizeOfficialOperators(),
+            "OfficialOperatorsAuthorizedByUser", {
+                user: user1
+            }
+        );
+
+    });
+
+    it("can view all authorized operator", async function () {
+        // offchain keep track of a list of official/unofficial operators 
+        let operatorSet = new Set();
+
+        // add official operator (they are also authorized by default)
+        await selfToken.addOfficialOperator(operator1.address)
+        operatorSet.add(operator1.address)
+
+        // authorize unofficial operators
+        await selfToken.authorizeOperator(operator2.address);
+        operatorSet.add(operator2.address);
+
+        // loop through all possible operators 
+        let authorizedOperators = []
+        operatorSet.forEach(function (key, operator, set) {
+            if (selfToken.isOperatorFor(operator, user1)) {
+                authorizedOperators.push(operator);
+            }
+        });
+
+        // deepEqual compares whether the two array have the same value
+        assert.deepEqual(authorizedOperators, [operator1.address, operator2.address])
+
+        // unauthorize unofficial operators
+        await expectEvent.inTransaction(
+            selfToken.revokeOperator(operator2.address),
+            "RevokedOperator", {
+                operator: operator2.address,
+                tokenHolder: user1
+            }
+        );
+
+        // check all operators again
+        authorizedOperators = []
+        operatorSet.forEach(function (key, operator, set) {
+            if (selfToken.isOperatorFor(operator, user1)) {
+                authorizedOperators.push(operator);
+                console.log(operator)
+            }
+        });
+        assert.deepEqual(authorizedOperators, [operator1.address])
+
+
+
+    })
+
+    // should not be able to authorize non contract operator
 });
