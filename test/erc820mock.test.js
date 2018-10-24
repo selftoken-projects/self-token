@@ -45,9 +45,14 @@ contract('ERC820', function (accounts) {
     assert.ok(implementer.$address);
   }).timeout(20000);
 
-  it('should deploy the example client', async () => {
-    client = await ExampleClient.new(_web3);
-    assert.ok(client.$address);
+  // it('should deploy the example client', async () => {
+  //   client = await ExampleClient.new(_web3);
+  //   assert.ok(client.$address);
+  // }).timeout(20000);
+
+  it('should deploy SelfToken as client', async () => {
+    client_SelfToken = await SelfToken.new();
+    assert.ok(client_SelfToken.address);
   }).timeout(20000);
 
   it('should set an address', async () => {
@@ -135,10 +140,6 @@ contract('ERC820', function (accounts) {
       })
       .should.be.rejectedWith('revert');
   }).timeout(6000);
-
-  it("should deploy new contracts", async function () {
-    selfToken = await SelfToken.new();
-  });
 
   it("should deploy new contracts", async function () {
     selfToken = await SelfToken.new();
