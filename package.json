@@ -17,6 +17,7 @@
   "license": "ISC",
   "homepage": "https://selftoken.co/",
   "dependencies": {
+    "chai-as-promised": "^7.1.1",
     "erc820": "0.0.22",
     "openzeppelin-solidity": "1.12.0"
   },
