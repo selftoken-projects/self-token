@@ -25,6 +25,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
   function operatorSend(address _from, address _to, uint256 _amount, bytes _userData, bytes _operatorData)
     external
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_from)
     whenAccountNotFrozen(_to)
   {
@@ -61,6 +62,8 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
   )
     internal
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
+    whenAccountNotFrozen(_operator)
     whenAccountNotFrozen(_from)
     whenAccountNotFrozen(_to)
   {
@@ -70,6 +73,8 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
   function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
     internal
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
+    whenAccountNotFrozen(_operator)
     whenAccountNotFrozen(_tokenHolder)
   {
     super.doBurn(_operator, _tokenHolder, _amount, _holderData, _operatorData);
@@ -81,6 +86,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     public
     erc20
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_to)
     returns (bool success)
   {
@@ -91,6 +97,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     public
     erc20
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_from)
     whenAccountNotFrozen(_to)
     returns (bool success)
@@ -102,6 +109,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     public
     erc20
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_spender)
     returns (bool success)
   {
