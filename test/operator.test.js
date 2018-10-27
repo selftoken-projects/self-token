@@ -1,5 +1,3 @@
-const ether = require('openzeppelin-solidity/test/helpers/ether');
-const ethGetBalance = require('openzeppelin-solidity/test/helpers/web3');
 const expectThrow = require("openzeppelin-solidity/test/helpers/expectThrow");
 const expectEvent = require("openzeppelin-solidity/test/helpers/expectEvent");
 const ERC820Registry = require('erc820')
@@ -7,12 +5,7 @@ const SelfToken = artifacts.require("SelfToken");
 const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
-  .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
-
-let erc820Registry, selfToken, operator1, operator2, tnx;
+let erc820Registry, selfToken, operator1, operator2;
 
 contract('SelfToken', function (accounts) {
   const [user1] = accounts;
@@ -88,14 +81,19 @@ contract('SelfToken', function (accounts) {
 
     // loop through all possible operators 
     let authorizedOperators = []
-    operatorSet.forEach(function (key, operator, set) {
-      if (selfToken.isOperatorFor(operator, user1)) {
+    let cnt = 0;
+    operatorSet.forEach(async function (key, operator, set) {
+      cnt++;
+      let isOperator = await selfToken.isOperatorFor(operator, user1)
+      if (isOperator) {
         authorizedOperators.push(operator);
       }
+      if (cnt == set.length) {
+        // deepEqual compares whether the two array have the same value
+        assert.deepEqual(authorizedOperators, [operator1.address, operator2.address])
+        console.log("hi")
+      }
     });
-
-    // deepEqual compares whether the two array have the same value
-    assert.deepEqual(authorizedOperators, [operator1.address, operator2.address])
 
     // unauthorize unofficial operators
     await expectEvent.inTransaction(
@@ -106,15 +104,25 @@ contract('SelfToken', function (accounts) {
       }
     );
 
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), false);
+    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
+
     // check all operators again
     authorizedOperators = []
-    operatorSet.forEach(function (key, operator, set) {
-      if (selfToken.isOperatorFor(operator, user1)) {
+    cnt = 0;
+    operatorSet.forEach(async function (key, operator, set) {
+      cnt++;
+      let isOperator = await selfToken.isOperatorFor(operator, user1)
+      if (isOperator) {
         authorizedOperators.push(operator);
+        console.log(key)
+      }
+      if (cnt == set.length) {
+        // deepEqual compares whether the two array have the same value
+        assert.deepEqual(authorizedOperators, [operator1.address])
+        console.log("hi")
       }
     });
-    assert.deepEqual(authorizedOperators, [operator1.address])
-
   })
 
   it("should not be able to authorize non contract operator", async function () {
