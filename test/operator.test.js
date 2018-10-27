@@ -117,6 +117,8 @@ contract('SelfToken', function (accounts) {
 
   })
 
-  // should not be able to authorize non contract operator
+  it("should not be able to authorize non contract operator", async function () {
+    await expectThrow.expectThrow(selfToken.addOfficialOperator(user1));
 
+  })
 });
