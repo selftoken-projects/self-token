@@ -17,7 +17,7 @@ let erc820Registry, selfToken, operator1, operator2, tnx;
 contract('SelfToken', function (accounts) {
   const [user1] = accounts;
 
-  beforeEach(async function () {
+  before(async function () {
     // use web3 1.0.0 instead of truffle's 0.20.6 web3
     let _Web3 = require('web3'); // version 1.0.0
     let _web3 = new _Web3(web3.currentProvider)
@@ -58,7 +58,7 @@ contract('SelfToken', function (accounts) {
   it("can authorized all official operators after unauthorizing all", async function () {
     // unauthorize all official operators
     await expectEvent.inTransaction(
-      selfToken.unauthorizeOfficialOperators(),
+      selfToken.rejectAllOfficialOperators(),
       "OfficialOperatorsUnauthorizedByUser", {
         user: user1
       }
@@ -66,7 +66,7 @@ contract('SelfToken', function (accounts) {
 
     // authorize back all official operators
     await expectEvent.inTransaction(
-      selfToken.authorizeOfficialOperators(),
+      selfToken.acceptAllOfficialOperators(),
       "OfficialOperatorsAuthorizedByUser", {
         user: user1
       }
