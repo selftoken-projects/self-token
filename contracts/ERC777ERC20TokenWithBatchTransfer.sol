@@ -11,6 +11,7 @@ contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token 
     public
     erc20
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     returns (bool success)
   {
     require(_recipients.length == _amounts.length, "The lengths of _recipients and _amounts should be the same.");
@@ -26,6 +27,7 @@ contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token 
   /// @param _amounts The numbers of tokens to be transferred
   function batchSend(address[] _recipients, uint256[] _amounts, bytes _userData)
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
     external
   {
     require(_recipients.length == _amounts.length, "The lengths of _recipients and _amounts should be the same.");
