@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
-import { PausableERC777ERC20Token } from "./PausableERC777ERC20Token.sol";
+import { PausableFreezableERC777ERC20Token } from "./PausableFreezableERC777ERC20Token.sol";
 
-contract ERC777ERC20TokenWithBatchTransfer is PausableERC777ERC20Token {
+contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token {
   /// @notice ERC20 backwards compatible batch transfer.
   /// @param _recipients The addresses of the recipients
   /// @param _amounts The numbers of tokens to be transferred
