@@ -51,7 +51,7 @@ contract('SelfToken', function (accounts) {
   it("can authorized all official operators after unauthorizing all", async function () {
     // unauthorize all official operators
     await expectEvent.inTransaction(
-      selfToken.unauthorizeOfficialOperators(),
+      selfToken.rejectAllOfficialOperators(),
       "OfficialOperatorsUnauthorizedByUser", {
         user: user1
       }
@@ -59,7 +59,7 @@ contract('SelfToken', function (accounts) {
 
     // authorize back all official operators
     await expectEvent.inTransaction(
-      selfToken.authorizeOfficialOperators(),
+      selfToken.acceptAllOfficialOperators(),
       "OfficialOperatorsAuthorizedByUser", {
         user: user1
       }
@@ -75,9 +75,19 @@ contract('SelfToken', function (accounts) {
     await selfToken.addOfficialOperator(operator1.address)
     operatorSet.add(operator1.address)
 
+    // official operator should be authorized by default
+    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
+
     // authorize unofficial operators
-    await selfToken.authorizeOperator(operator2.address);
+    await expectEvent.inTransaction(
+      selfToken.authorizeOperator(operator2.address),
+      "AuthorizedOperator", {
+        operator: operator2.address,
+        tokenHolder: user1
+      }
+    );
     operatorSet.add(operator2.address);
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
 
     // loop through all possible operators 
     let authorizedOperators = []
@@ -88,10 +98,9 @@ contract('SelfToken', function (accounts) {
       if (isOperator) {
         authorizedOperators.push(operator);
       }
-      if (cnt == set.length) {
+      if (cnt == set.size) {
         // deepEqual compares whether the two array have the same value
         assert.deepEqual(authorizedOperators, [operator1.address, operator2.address])
-        console.log("hi")
       }
     });
 
@@ -115,12 +124,10 @@ contract('SelfToken', function (accounts) {
       let isOperator = await selfToken.isOperatorFor(operator, user1)
       if (isOperator) {
         authorizedOperators.push(operator);
-        console.log(key)
       }
-      if (cnt == set.length) {
+      if (cnt == set.size) {
         // deepEqual compares whether the two array have the same value
         assert.deepEqual(authorizedOperators, [operator1.address])
-        console.log("hi")
       }
     });
   })
@@ -128,5 +135,11 @@ contract('SelfToken', function (accounts) {
   it("should not be able to authorize non contract operator", async function () {
     await expectThrow.expectThrow(selfToken.addOfficialOperator(user1));
 
+  })
+
+  it("should not be able to unauthorize an authorized official operator one by one", async function () {
+
+    await selfToken.revokeOperator(operator1.address);
+    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   })
 });

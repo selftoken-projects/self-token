@@ -49,7 +49,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
-  function unauthorizeOfficialOperators() public {
+  function rejectAllOfficialOperators() public {
     require(!mHasUserUnauthorizedOfficialOperators[msg.sender], "Official operators are already unauthorized by msg.sender.");
 
     mHasUserUnauthorizedOfficialOperators[msg.sender] = true;
@@ -57,7 +57,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Authorize all official operators to manage `msg.sender`'s tokens.
-  function authorizeOfficialOperators() public {
+  function acceptAllOfficialOperators() public {
     require(mHasUserUnauthorizedOfficialOperators[msg.sender], "Official operators are already authorized by msg.sender.");
 
     mHasUserUnauthorizedOfficialOperators[msg.sender] = false;
