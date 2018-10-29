@@ -12,15 +12,20 @@ import { ERC777TokensRecipient } from "./ERC777TokensRecipient.sol";
 
 contract ERC777BaseToken is ERC777Token, ERC820Client {
   using SafeMath for uint256;
+
   string internal mName;
   string internal mSymbol;
   uint256 internal mGranularity;
   uint256 internal mTotalSupply;
+
+
   mapping(address => uint) internal mBalances;
   mapping(address => mapping(address => bool)) internal mAuthorized;
+
   address[] internal mDefaultOperators;
   mapping(address => bool) internal mIsDefaultOperator;
   mapping(address => mapping(address => bool)) internal mRevokedDefaultOperator;
+
   /* -- Constructor -- */
   //
   /// @notice Constructor to create a ReferenceToken
@@ -33,33 +38,43 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     mTotalSupply = 0;
     require(_granularity >= 1);
     mGranularity = _granularity;
+
     mDefaultOperators = _defaultOperators;
     for (uint i = 0; i < mDefaultOperators.length; i++) { mIsDefaultOperator[mDefaultOperators[i]] = true; }
+
     setInterfaceImplementation("ERC777Token", this);
   }
+
   /* -- ERC777 Interface Implementation -- */
   //
   /// @return the name of the token
   function name() public constant returns (string) { return mName; }
+
   /// @return the symbol of the token
   function symbol() public constant returns (string) { return mSymbol; }
+
   /// @return the granularity of the token
   function granularity() public constant returns (uint256) { return mGranularity; }
+
   /// @return the total supply of the token
   function totalSupply() public constant returns (uint256) { return mTotalSupply; }
+
   /// @notice Return the account balance of some account
   /// @param _tokenHolder Address for which the balance is returned
   /// @return the balance of `_tokenAddress`.
   function balanceOf(address _tokenHolder) public constant returns (uint256) { return mBalances[_tokenHolder]; }
+
   /// @notice Return the list of default operators
   /// @return the list of all the default operators
   function defaultOperators() public view returns (address[]) { return mDefaultOperators; }
+
   /// @notice Send `_amount` of tokens to address `_to` passing `_userData` to the recipient
   /// @param _to The address of the recipient
   /// @param _amount The number of tokens to be sent
   function send(address _to, uint256 _amount, bytes _userData) external {
     doSend(msg.sender, msg.sender, _to, _amount, _userData, "", true);
   }
+
   /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens.
   /// @param _operator The operator that wants to be Authorized
   function authorizeOperator(address _operator) public {
@@ -71,6 +86,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     }
     emit AuthorizedOperator(_operator, msg.sender);
   }
+
   /// @notice Revoke a third party `_operator`'s rights to manage (send) `msg.sender`'s tokens.
   /// @param _operator The operator that wants to be Revoked
   function revokeOperator(address _operator) public {
@@ -82,6 +98,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     }
     emit RevokedOperator(_operator, msg.sender);
   }
+
   /// @notice Check whether the `_operator` address is allowed to manage the tokens held by `_tokenHolder` address.
   /// @param _operator address to check if it has the right to manage the tokens
   /// @param _tokenHolder address which holds the tokens to be managed
@@ -91,6 +108,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
       || mAuthorized[_operator][_tokenHolder]
       || (mIsDefaultOperator[_operator] && !mRevokedDefaultOperator[_operator][_tokenHolder]));
   }
+
   /// @notice Send `_amount` of tokens on behalf of the address `from` to the address `to`.
   /// @param _from The address holding the tokens being sent
   /// @param _to The address of the recipient
@@ -101,13 +119,16 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     require(isOperatorFor(msg.sender, _from));
     doSend(msg.sender, _from, _to, _amount, _userData, _operatorData, true);
   }
+
   function burn(uint256 _amount, bytes _holderData) external {
     doBurn(msg.sender, msg.sender, _amount, _holderData, "");
   }
+
   function operatorBurn(address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData) external {
     require(isOperatorFor(msg.sender, _tokenHolder));
     doBurn(msg.sender, _tokenHolder, _amount, _holderData, _operatorData);
   }
+
   /* -- Helper Functions -- */
   //
   /// @notice Internal function that ensures `_amount` is multiple of the granularity
@@ -115,6 +136,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   function requireMultiple(uint256 _amount) internal view {
     require(_amount.div(mGranularity).mul(mGranularity) == _amount);
   }
+
   /// @notice Check whether an address is a regular address or not.
   /// @param _addr Address of the contract that has to be checked
   /// @return `true` if `_addr` is a regular address (not a contract)
@@ -124,6 +146,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     assembly { size := extcodesize(_addr) } // solhint-disable-line no-inline-assembly
     return size == 0;
   }
+
   /// @notice Helper function actually performing the sending of tokens.
   /// @param _operator The address performing the send
   /// @param _from The address holding the tokens being sent
@@ -144,17 +167,23 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     bytes _operatorData,
     bool _preventLocking
   )
-      internal
+    internal
   {
     requireMultiple(_amount);
+
     callSender(_operator, _from, _to, _amount, _userData, _operatorData);
+
     require(_to != address(0));          // forbid sending to 0x0 (=burning)
     require(mBalances[_from] >= _amount); // ensure enough funds
+
     mBalances[_from] = mBalances[_from].sub(_amount);
     mBalances[_to] = mBalances[_to].add(_amount);
+
     callRecipient(_operator, _from, _to, _amount, _userData, _operatorData, _preventLocking);
+
     emit Sent(_operator, _from, _to, _amount, _userData, _operatorData);
   }
+
   /// @notice Helper function actually performing the burning of tokens.
   /// @param _operator The address performing the burn
   /// @param _tokenHolder The address holding the tokens being burn
@@ -162,15 +191,18 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   /// @param _holderData Data generated by the token holder
   /// @param _operatorData Data generated by the operator
   function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
-      internal
+    internal
   {
     requireMultiple(_amount);
     require(balanceOf(_tokenHolder) >= _amount);
+
     mBalances[_tokenHolder] = mBalances[_tokenHolder].sub(_amount);
     mTotalSupply = mTotalSupply.sub(_amount);
+
     callSender(_operator, _tokenHolder, 0x0, _amount, _holderData, _operatorData);
     emit Burned(_operator, _tokenHolder, _amount, _holderData, _operatorData);
   }
+
   /// @notice Helper function that checks for ERC777TokensRecipient on the recipient and calls it.
   ///  May throw according to `_preventLocking`
   /// @param _operator The address performing the send or mint
@@ -192,7 +224,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     bytes _operatorData,
     bool _preventLocking
   )
-      internal
+    internal
   {
     address recipientImplementation = interfaceAddr(_to, "ERC777TokensRecipient");
     if (recipientImplementation != 0) {
@@ -202,6 +234,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
       require(isRegularAddress(_to));
     }
   }
+
   /// @notice Helper function that checks for ERC777TokensSender on the sender and calls it.
   ///  May throw according to `_preventLocking`
   /// @param _from The address holding the tokens being sent
@@ -220,7 +253,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
     bytes _userData,
     bytes _operatorData
   )
-      internal
+    internal
   {
     address senderImplementation = interfaceAddr(_from, "ERC777TokensSender");
     if (senderImplementation == 0) { return; }
