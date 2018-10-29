@@ -31,7 +31,7 @@ contract('SelfToken', function (accounts) {
     await selfToken.mint(buyer3, 100, "");
   });
 
-  it("should freeze buyer1", async function () {
+  it("should pause token transfer and approving", async function () {
     // Init: buyer1 approve buyer3: 1 wei (To be tested by transferFrom later)
     await selfToken.approve(buyer3, 1, {
       from: buyer1
@@ -66,7 +66,7 @@ contract('SelfToken', function (accounts) {
     }));
   });
 
-  it("should unfreeze buyer1", async function () {
+  it("should unpause token transfer and approving", async function () {
     // Main: Unpause buyer1
     await selfToken.unpause();
 
