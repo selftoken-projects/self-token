@@ -13,6 +13,8 @@ contract ERC777ERC20TokenWithApproveAndCall is PausableFreezableERC777ERC20Token
   function approveAndCall(address _spender, uint256 _value, bytes _extraData)
     public
     whenNotPaused
+    whenAccountNotFrozen(msg.sender)
+    whenAccountNotFrozen(_spender)
     returns (bool success)
   {
     ApprovalRecipient spender = ApprovalRecipient(_spender);

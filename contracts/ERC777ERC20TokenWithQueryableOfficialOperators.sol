@@ -50,13 +50,13 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Authorize all official operators to manage `msg.sender`'s tokens.
-  function authorizeOfficialOperators() public {
+  function acceptAllOfficialOperators() public {
     mIsRejectingOfficialOperators[msg.sender] = false;
     emit AuthorizedOfficialOperators(msg.sender);
   }
 
   /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
-  function unauthorizeOfficialOperators() public {
+  function rejectAllOfficialOperators() public {
     mIsRejectingOfficialOperators[msg.sender] = true;
     emit UnauthorizedOfficialOperators(msg.sender);
   }
