@@ -75,6 +75,11 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
     return mIsOfficialOperator[_operator];
   }
 
+  /// @return true if a user is accepting all official operators, false if not.
+  function isUserAcceptingAllOfficialOperators(address _user) public view returns(bool) {
+    return !mIsUserNotAcceptingAllOfficialOperators[_user];
+  }
+
   /// @notice Check whether the `_operator` address is allowed to manage the tokens held by `_tokenHolder` address.
   /// @param _operator address to check if it has the right to manage the tokens
   /// @param _tokenHolder address which holds the tokens to be managed
