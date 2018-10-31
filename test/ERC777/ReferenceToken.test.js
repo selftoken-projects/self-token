@@ -24,7 +24,7 @@ contract("SelfToken", function (accounts) {
   let token = {
     name: "SELF Token",
     symbol: "SELF",
-    granularity: "1e18",
+    granularity: "1",
     defaultOperators: [accounts[6], accounts[7]],
     // burnOperator: accounts[8],
     totalSupply: "0",
