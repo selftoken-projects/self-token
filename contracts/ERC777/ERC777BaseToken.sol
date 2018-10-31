@@ -28,7 +28,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 
   /* -- Constructor -- */
   //
-  /// @notice Constructor to create a ReferenceToken
+  /// @notice Constructor to create a SelfToken
   /// @param _name Name of the new token
   /// @param _symbol Symbol of the new token.
   /// @param _granularity Minimum transferable chunk.

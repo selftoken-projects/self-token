@@ -1,5 +1,7 @@
 const shouldFail = require("./helper/shouldFail");
-const { expectThrow } = require("openzeppelin-solidity/test/helpers/expectThrow");
+const {
+  expectThrow
+} = require("openzeppelin-solidity/test/helpers/expectThrow");
 const expectEvent = require("openzeppelin-solidity/test/helpers/expectEvent");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
@@ -28,13 +30,17 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should only allow the owner to add an official operator", async function () {
-    shouldFail.reverting(selfToken.addOfficialOperator(operator1.address, { from: anyone }));
+    shouldFail.reverting(selfToken.addOfficialOperator(operator1.address, {
+      from: anyone
+    }));
   });
 
   // note: add offical operator != authorize official operator
   it("should allow the owner to add official operator", async function () {
     await expectEvent.inTransaction(
-      selfToken.addOfficialOperator(operator1.address, { from: owner }),
+      selfToken.addOfficialOperator(operator1.address, {
+        from: owner
+      }),
       "OfficialOperatorAdded", {
         operator: operator1.address
       }
@@ -49,12 +55,16 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should only allow the owner to remove an official operator", async function () {
-    shouldFail.reverting(selfToken.removeOfficialOperator(operator1.address, { from: anyone }));
+    shouldFail.reverting(selfToken.removeOfficialOperator(operator1.address, {
+      from: anyone
+    }));
   });
 
   it("should remove official operator", async function () {
     await expectEvent.inTransaction(
-      selfToken.removeOfficialOperator(operator1.address, { from: owner }),
+      selfToken.removeOfficialOperator(operator1.address, {
+        from: owner
+      }),
       "OfficialOperatorRemoved", {
         operator: operator1.address
       }
@@ -66,7 +76,9 @@ contract('SelfToken', function (accounts) {
 
   it("can accept all official operators again after rejecting all", async function () {
     // add operator1 to official operators
-    await selfToken.addOfficialOperator(operator1.address, { from: owner });
+    await selfToken.addOfficialOperator(operator1.address, {
+      from: owner
+    });
 
     // By default, a user accepts all official operators
     assert.equal(await selfToken.isUserAcceptingAllOfficialOperators(user1), true);
@@ -75,7 +87,9 @@ contract('SelfToken', function (accounts) {
 
     // reject all official operators
     await expectEvent.inTransaction(
-      selfToken.rejectAllOfficialOperators({ from: user1 }),
+      selfToken.rejectAllOfficialOperators({
+        from: user1
+      }),
       "OfficialOperatorsRejectedByUser", {
         user: user1
       }
@@ -88,7 +102,9 @@ contract('SelfToken', function (accounts) {
 
     // authorize back all official operators
     await expectEvent.inTransaction(
-      selfToken.acceptAllOfficialOperators({ from: user1 }),
+      selfToken.acceptAllOfficialOperators({
+        from: user1
+      }),
       "OfficialOperatorsAcceptedByUser", {
         user: user1
       }
@@ -100,7 +116,9 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
 
     // remove operator1 from official operators
-    await selfToken.removeOfficialOperator(operator1.address, { from: owner });
+    await selfToken.removeOfficialOperator(operator1.address, {
+      from: owner
+    });
   });
 
   it("can view all authorized operator", async function () {
@@ -108,7 +126,9 @@ contract('SelfToken', function (accounts) {
     let operatorSet = new Set();
 
     // add official operator (they are also authorized by default)
-    await selfToken.addOfficialOperator(operator1.address, { from: owner });
+    await selfToken.addOfficialOperator(operator1.address, {
+      from: owner
+    });
     operatorSet.add(operator1.address);
 
     // official operator should be authorized by default
@@ -116,7 +136,9 @@ contract('SelfToken', function (accounts) {
 
     // authorize unofficial operators
     await expectEvent.inTransaction(
-      selfToken.authorizeOperator(operator2.address, { from: user1 }),
+      selfToken.authorizeOperator(operator2.address, {
+        from: user1
+      }),
       "AuthorizedOperator", {
         operator: operator2.address,
         tokenHolder: user1,
@@ -124,7 +146,7 @@ contract('SelfToken', function (accounts) {
     );
     operatorSet.add(operator2.address);
     // TODO: not sure the logic yet
-    // assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
 
     // loop through all possible operators
     let authorizedOperators = []
@@ -144,7 +166,9 @@ contract('SelfToken', function (accounts) {
 
     // unauthorize unofficial operators
     await expectEvent.inTransaction(
-      selfToken.revokeOperator(operator2.address, { from: user1 }),
+      selfToken.revokeOperator(operator2.address, {
+        from: user1
+      }),
       "RevokedOperator", {
         operator: operator2.address,
         tokenHolder: user1
