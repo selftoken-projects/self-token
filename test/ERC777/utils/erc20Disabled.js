@@ -15,7 +15,7 @@ exports.test = function (web3, accounts, token) {
     });
 
     it('should not return 18 for decimals', async function () {
-      await token.contract.methods
+      await token
         .decimals()
         .call()
         .should.be.rejectedWith('revert');
@@ -28,7 +28,7 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[1], 10);
         await utils.assertBalance(web3, token, accounts[2], 10);
 
-        await token.contract.methods
+        await token
           .transfer(accounts[1], web3.utils.toWei('3'))
           .send({
             gas: 300000,
@@ -44,7 +44,7 @@ exports.test = function (web3, accounts, token) {
 
     it(`should not approve ${utils.formatAccount(accounts[3])} to transfer ` +
       `from ${utils.formatAccount(accounts[1])}`, async function () {
-        await token.contract.methods
+        await token
           .approve(accounts[3], web3.utils.toWei('3.5'))
           .send({
             gas: 300000,
@@ -52,7 +52,7 @@ exports.test = function (web3, accounts, token) {
           })
           .should.be.rejectedWith('revert');
 
-        await token.contract.methods
+        await token
           .allowance(accounts[1], accounts[3])
           .call()
           .should.be.rejectedWith('revert');
@@ -65,7 +65,7 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[1], 10);
         await utils.assertBalance(web3, token, accounts[2], 10);
 
-        await token.contract.methods
+        await token
           .approve(accounts[3], web3.utils.toWei('3.5'))
           .send({
             gas: 300000,
@@ -73,7 +73,7 @@ exports.test = function (web3, accounts, token) {
           })
           .should.be.rejectedWith('revert');
 
-        await token.contract.methods
+        await token
           .transferFrom(accounts[1], accounts[2], web3.utils.toWei('0.5'))
           .send({
             gas: 300000,
@@ -97,7 +97,7 @@ exports.test = function (web3, accounts, token) {
       assert.strictEqual(
         erc20Addr, '0x0000000000000000000000000000000000000000');
 
-      await token.contract.methods
+      await token
         .enableERC20()
         .send({
           gas: 300000,

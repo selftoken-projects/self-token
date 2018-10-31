@@ -7,64 +7,51 @@ chai.use(require("chai-as-promised")).should();
 const {
   URL
 } = require("url");
-const Web3 = require("web3");
-const erc820Registry = require("erc820");
-const SelfToken = artifacts.require("SelfToken");
+const ERC820Registry = require("erc820");
+const SelfTokenArtifacts = artifacts.require("SelfToken");
 const utils = require("./utils");
 
-contract("SelfToken", function (accounts) {
-  const provider = new URL(this.web3.currentProvider.host);
-  provider.protocol = "ws";
-  const web3 = new Web3(provider.toString());
-  const SelfToken = new web3.eth.Contract(SelfToken.abi, {
-    data: SelfToken.bytecode
-  });
+// use web3 1.0.0 instead of truffle's 0.20.6 web3
+let _Web3 = require("web3"); // version 1.0.0
+let _web3 = new _Web3(web3.currentProvider);
 
+contract("SelfToken", function (accounts) {
+  const SelfToken = new _web3.eth.Contract(
+    SelfTokenArtifacts.abi, {
+      data: SelfTokenArtifacts.bytecode
+    }
+  );
   let token = {
-    name: "SelfToken",
-    symbol: "XRT",
-    granularity: "0.01",
+    name: "SELF Token",
+    symbol: "SELF",
+    granularity: "1e18",
     defaultOperators: [accounts[6], accounts[7]],
-    burnOperator: accounts[8],
+    // burnOperator: accounts[8],
     totalSupply: "0",
-    defaultBalance: "0"
+    defaultBalance: "0" // initial balance of all accounts
   };
 
-  const deployContract = SelfToken.deploy({
-    arguments: [
-      token.name,
-      token.symbol,
-      web3.utils.toWei(token.granularity),
-      token.defaultOperators,
-      token.burnOperator
-    ]
-  });
-
-  after(async function () {
-    await web3.currentProvider.connection.close();
-  });
+  const deployContract = SelfToken.deploy()
 
   beforeEach(async function () {
-    let erc820Registry = await erc820Registry.deploy(web3, accounts[0]);
+    erc820Registry = await ERC820Registry.deploy(_web3, accounts[0]);
     assert.ok(erc820Registry.$address);
 
-    // Use Web3.js 1.0
+    // deploy selfToken
     const estimateGas = await deployContract.estimateGas();
-    token.contract = await deployContract.send({
-      from: accounts[0],
-      gasLimit: estimateGas
-    });
+    token.contract = await deployContract
+      .send({
+        from: accounts[0],
+        gasLimit: estimateGas
+      });
     assert.ok(token.contract.options.address);
 
-    // token.disableERC20 = async function() {
-    //   await token.contract.methods
-    //     .disableERC20()
-    //     .send({gas: 300000, from: accounts[0]});
-    // };
+    // TODO: manually add default operators
+
 
     token.genMintTxForAccount = function (account, amount, operator, gas) {
       return token.contract.methods
-        .mint(account, web3.utils.toWei(amount), "0xcafe")
+        .mint(account, _web3.utils.toWei(amount), '0xcafe')
         .send.request({
           gas: gas,
           from: operator
@@ -72,60 +59,44 @@ contract("SelfToken", function (accounts) {
     };
   });
 
-  describe("Creation", function () {
-    it("should not deploy the token with a granularity of 0", async function () {
-      const estimateGas = await deployContract.estimateGas();
-      await SelfToken.deploy({
-          arguments: [
-            token.name,
-            token.symbol,
-            web3.utils.toWei("0"),
-            token.defaultOperators,
-            token.burnOperator
-          ]
-        })
-        .send({
-          from: accounts[0],
-          gasLimit: estimateGas
-        })
-        .should.be.rejectedWith("revert");
-    });
-  });
+  require("./utils/attributes").test(_web3, accounts, token);
+  require("./utils/mint").test(_web3, accounts, token);
+  require("./utils/burn").test(_web3, accounts, token);
+  require("./utils/send").test(_web3, accounts, token);
+  // require("./utils/operator").test(_web3, accounts, token);
+  // require("./utils/disabled.operatorBurn").test(_web3, accounts, token);
+  require("./utils/operatorSend").test(_web3, accounts, token);
+  require("./utils/tokensSender").test(_web3, accounts, token);
+  require("./utils/tokensRecipient").test(_web3, accounts, token);
+  require("./utils/erc20Compatibility").test(_web3, accounts, token);
 
-  require("./utils/attributes").test(web3, accounts, token);
-  require("./utils/mint").test(web3, accounts, token);
-  require("./utils/burn").test(web3, accounts, token);
-  require("./utils/send").test(web3, accounts, token);
-  require("./utils/operator").test(web3, accounts, token);
-  require("./utils/operatorBurn").test(web3, accounts, token);
-  require("./utils/operatorSend").test(web3, accounts, token);
-  require("./utils/tokensSender").test(web3, accounts, token);
-  require("./utils/tokensRecipient").test(web3, accounts, token);
-  require("./utils/erc20Compatibility").test(web3, accounts, token);
 
-  describe("ERC20 Disable", function () {
-    it("should disable ERC20 compatibility", async function () {
-      let erc820Registry = utils.getERC820Registry(web3);
-      let erc20Hash = web3.utils.keccak256("ERC20Token");
-      let erc20Addr = await erc820Registry.methods
-        .getInterfaceImplementer(token.contract.options.address, erc20Hash)
-        .call();
 
-      assert.strictEqual(erc20Addr, token.contract.options.address);
 
-      await token.disableERC20();
 
-      await utils.getBlock(web3);
-      erc20Addr = await erc820Registry.methods
-        .getInterfaceImplementer(token.contract.options.address, erc20Hash)
-        .call();
+  // describe("ERC20 Disable", function () {
+  //   it("should disable ERC20 compatibility", async function () {
+  //     let erc820Registry = utils.getERC820Registry(_web3);
+  //     let erc20Hash = _web3.utils.keccak256("ERC20selfToken");
+  //     let erc20Addr = await erc820Registry.methods
+  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash)
+  //       .call();
 
-      assert.strictEqual(
-        erc20Addr,
-        "0x0000000000000000000000000000000000000000"
-      );
-    });
-  });
+  //     assert.strictEqual(erc20Addr, token.contract.options.address);
 
-  require("./utils/erc20Disabled").test(web3, accounts, token);
+  //     await token.disableERC20();
+
+  //     await utils.getBlock(_web3);
+  //     erc20Addr = await erc820Registry.methods
+  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash)
+  //       .call();
+
+  //     assert.strictEqual(
+  //       erc20Addr,
+  //       "0x0000000000000000000000000000000000000000"
+  //     );
+  //   });
+  // });
+
+  // require("./utils/erc20Disabled").test(_web3, accounts, token);
 });

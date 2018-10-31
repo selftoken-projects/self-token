@@ -1,20 +1,21 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const chai = require("chai");
 const assert = chai.assert;
 chai.use(require("chai-as-promised")).should();
 const utils = require("./index");
-const OldExampleTokensRecipient = artifacts.require("ExampleTokensRecipient");
+const OldExampleTokensRecipient = artifacts.require("ERC777TokensRecipient");
 
-exports.test = function(web3, accounts, token) {
+exports.test = function (web3, accounts, token) {
   const ExampleTokensRecipient = new web3.eth.Contract(
-    OldExampleTokensRecipient.abi,
-    {data: OldExampleTokensRecipient.bytecode}
+    OldExampleTokensRecipient.abi, {
+      data: OldExampleTokensRecipient.bytecode
+    }
   );
   let recipient;
-  describe("TokensRecipient", async function() {
-    beforeEach(async function() {
+  describe("TokensRecipient", async function () {
+    beforeEach(async function () {
       await utils.mintForAllAccounts(
         web3,
         accounts,
@@ -24,13 +25,16 @@ exports.test = function(web3, accounts, token) {
         100000
       );
 
-      recipient = await ExampleTokensRecipient.deploy({arguments: [true]}).send(
-        {from: accounts[4], gasLimit: 4712388}
-      );
+      recipient = await ExampleTokensRecipient.deploy({
+        arguments: [true]
+      }).send({
+        from: accounts[4],
+        gasLimit: 4712388
+      });
       assert.ok(recipient.options.address);
     });
 
-    it("should notify the recipient upon receiving tokens", async function() {
+    it("should notify the recipient upon receiving tokens", async function () {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
@@ -38,11 +42,17 @@ exports.test = function(web3, accounts, token) {
 
       await recipient.methods
         .acceptTokens()
-        .send({gas: 300000, from: accounts[4]});
+        .send({
+          gas: 300000,
+          from: accounts[4]
+        });
 
       await token.contract.methods
         .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
-        .send({gas: 300000, from: accounts[5]});
+        .send({
+          gas: 300000,
+          from: accounts[5]
+        });
 
       await utils.getBlock(web3);
 
@@ -52,7 +62,7 @@ exports.test = function(web3, accounts, token) {
       await utils.assertBalance(web3, token, recipient.options.address, 1.22);
     });
 
-    it("should let the recipient reject the tokens", async function() {
+    it("should let the recipient reject the tokens", async function () {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
@@ -60,11 +70,17 @@ exports.test = function(web3, accounts, token) {
 
       await recipient.methods
         .rejectTokens()
-        .send({gas: 300000, from: accounts[4]});
+        .send({
+          gas: 300000,
+          from: accounts[4]
+        });
 
       await token.contract.methods
         .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
-        .send({gas: 300000, from: accounts[5]})
+        .send({
+          gas: 300000,
+          from: accounts[5]
+        })
         .should.be.rejectedWith("revert");
 
       await utils.getBlock(web3);
@@ -78,11 +94,14 @@ exports.test = function(web3, accounts, token) {
 
     it(
       'should call "TokensRecipient" for ' +
-        `${utils.formatAccount(accounts[4])}`,
-      async function() {
+      `${utils.formatAccount(accounts[4])}`,
+      async function () {
         recipient = await ExampleTokensRecipient.deploy({
           arguments: [false]
-        }).send({from: accounts[4], gasLimit: 4712388});
+        }).send({
+          from: accounts[4],
+          gasLimit: 4712388
+        });
         assert.ok(recipient.options.address);
 
         let erc820Registry = utils.getERC820Registry(web3);
@@ -92,7 +111,9 @@ exports.test = function(web3, accounts, token) {
             web3.utils.keccak256("ERC777TokensRecipient"),
             recipient.options.address
           )
-          .send({from: accounts[4]});
+          .send({
+            from: accounts[4]
+          });
 
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[4], 10);
@@ -102,11 +123,17 @@ exports.test = function(web3, accounts, token) {
 
         await recipient.methods
           .acceptTokens()
-          .send({gas: 300000, from: accounts[4]});
+          .send({
+            gas: 300000,
+            from: accounts[4]
+          });
 
         await token.contract.methods
           .send(accounts[4], web3.utils.toWei("1.22"), "0x")
-          .send({gas: 300000, from: accounts[5]});
+          .send({
+            gas: 300000,
+            from: accounts[5]
+          });
 
         await utils.getBlock(web3);
 
@@ -120,11 +147,14 @@ exports.test = function(web3, accounts, token) {
 
     it(
       "should not send tokens to a contract " + "without TokensRecipient",
-      async function() {
+      async function () {
         // must be redeployed without registering with erc820 for this test
         recipient = await ExampleTokensRecipient.deploy({
           arguments: [false]
-        }).send({from: accounts[4], gasLimit: 4712388});
+        }).send({
+          from: accounts[4],
+          gasLimit: 4712388
+        });
         assert.ok(recipient.options.address);
 
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
@@ -134,7 +164,10 @@ exports.test = function(web3, accounts, token) {
 
         await token.contract.methods
           .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
-          .send({gas: 300000, from: accounts[5]})
+          .send({
+            gas: 300000,
+            from: accounts[5]
+          })
           .should.be.rejectedWith("revert");
 
         await utils.getBlock(web3);

@@ -52,29 +52,29 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[2], 13);
       });
 
-    it(`should let ${utils.formatAccount(accounts[1])} ` +
-      `send 3 ${token.symbol} to ${utils.formatAccount(accounts[2])} ` +
-      '(ERC20 Disabled)', async function () {
-        await utils.assertTotalSupply(web3, token, 10 * accounts.length);
-        await utils.assertBalance(web3, token, accounts[1], 10);
-        await utils.assertBalance(web3, token, accounts[2], 10);
+    // it(`should let ${utils.formatAccount(accounts[1])} ` +
+    //   `send 3 ${token.symbol} to ${utils.formatAccount(accounts[2])} ` +
+    //   '(ERC20 Disabled)', async function () {
+    //     await utils.assertTotalSupply(web3, token, 10 * accounts.length);
+    //     await utils.assertBalance(web3, token, accounts[1], 10);
+    //     await utils.assertBalance(web3, token, accounts[2], 10);
 
-        // await token.disableERC20();
+    //     // await token.disableERC20();
 
-        await token.contract.methods
-          .send(accounts[2], web3.utils.toWei('3'), '0x')
-          .send({
-            gas: 300000,
-            from: accounts[1]
-          });
+    //     await token.contract.methods
+    //       .send(accounts[2], web3.utils.toWei('3'), '0x')
+    //       .send({
+    //         gas: 300000,
+    //         from: accounts[1]
+    //       });
 
-        await utils.getBlock(web3);
+    //     await utils.getBlock(web3);
 
-        // TODO check events
-        await utils.assertTotalSupply(web3, token, 10 * accounts.length);
-        await utils.assertBalance(web3, token, accounts[1], 7);
-        await utils.assertBalance(web3, token, accounts[2], 13);
-      });
+    //     // TODO check events
+    //     await utils.assertTotalSupply(web3, token, 10 * accounts.length);
+    //     await utils.assertBalance(web3, token, accounts[1], 7);
+    //     await utils.assertBalance(web3, token, accounts[2], 13);
+    //   });
 
     it(`should not let ${utils.formatAccount(accounts[1])} ` +
       `send 11 ${token.symbol} (not enough funds)`, async function () {

@@ -29,25 +29,25 @@ exports.test = function (web3, accounts, token) {
       }
     );
 
-    it(`should let ${utils.formatAccount(accounts[0])} burn 3 ${token.symbol}` +
-      ' (ERC20 Disabled)', async function () {
-        await utils.assertBalance(web3, token, accounts[0], 10);
+    // it(`should let ${utils.formatAccount(accounts[0])} burn 3 ${token.symbol}` +
+    //   ' (ERC20 Disabled)', async function () {
+    //     await utils.assertBalance(web3, token, accounts[0], 10);
 
-        // await token.disableERC20();
+    //     // await token.disableERC20();
 
-        await token.contract.methods
-          .burn(web3.utils.toWei('3'), '0x')
-          .send({
-            gas: 300000,
-            from: accounts[0]
-          });
+    //     await token.contract.methods
+    //       .burn(web3.utils.toWei('3'), '0x')
+    //       .send({
+    //         gas: 300000,
+    //         from: accounts[0]
+    //       });
 
-        await utils.getBlock(web3);
+    //     await utils.getBlock(web3);
 
-        // TODO check events
-        await utils.assertBalance(web3, token, accounts[0], 7);
-        await utils.assertTotalSupply(web3, token, 10 * accounts.length - 3);
-      });
+    //     // TODO check events
+    //     await utils.assertBalance(web3, token, accounts[0], 7);
+    //     await utils.assertTotalSupply(web3, token, 10 * accounts.length - 3);
+    //   });
 
     it(`should not let ${utils.formatAccount(accounts[0])} burn 11 ` +
       `${token.symbol} (not enough funds)`, async function () {
