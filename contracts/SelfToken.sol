@@ -10,7 +10,15 @@ import { Claimable } from "openzeppelin-solidity/contracts/ownership/Claimable.s
 
 
 /// @dev The inheritance order is important.
-contract SelfToken is ERC777ERC20BaseToken, PausableFreezableERC777ERC20Token, ERC777ERC20TokenWithOfficialOperators, ERC777ERC20TokenWithApproveAndCall, ERC777ERC20TokenWithBatchTransfer, CappedMintableERC777ERC20Token, Claimable {
+contract SelfToken is
+  ERC777ERC20BaseToken,
+  PausableFreezableERC777ERC20Token,
+  ERC777ERC20TokenWithOfficialOperators,
+  ERC777ERC20TokenWithApproveAndCall,
+  ERC777ERC20TokenWithBatchTransfer,
+  CappedMintableERC777ERC20Token,
+  Claimable
+{
   constructor()
     public
     ERC777ERC20BaseToken("SELF Token", "SELF", 1, new address[](0))

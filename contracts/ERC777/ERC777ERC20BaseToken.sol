@@ -36,7 +36,7 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
 
   /// @notice For Backwards compatibility
   /// @return The decimls of the token. Forced to 18 in ERC777.
-  function decimals() public erc20 constant returns (uint8) { return uint8(18); }
+  function decimals() public erc20 view returns (uint8) { return uint8(18); }
 
   /// @notice ERC20 backwards compatible transfer.
   /// @param _to The address of the recipient
@@ -78,7 +78,7 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
   /// @param _spender The address of the account able to transfer the tokens
   /// @return Amount of remaining tokens of _owner that _spender is allowed
   ///  to spend
-  function allowance(address _owner, address _spender) public erc20 constant returns (uint256 remaining) {
+  function allowance(address _owner, address _spender) public erc20 view returns (uint256 remaining) {
     return mAllowed[_owner][_spender];
   }
 
@@ -94,13 +94,17 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
     internal
   {
     super.doSend(_operator, _from, _to, _amount, _userData, _operatorData, _preventLocking);
-    if (mErc20compatible) { emit Transfer(_from, _to, _amount); }
+    if (mErc20compatible) {
+      emit Transfer(_from, _to, _amount);
+    }
   }
 
   function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
     internal
   {
     super.doBurn(_operator, _tokenHolder, _amount, _holderData, _operatorData);
-    if (mErc20compatible) { emit Transfer(_tokenHolder, 0x0, _amount); }
+    if (mErc20compatible) {
+      emit Transfer(_tokenHolder, 0x0, _amount);
+    }
   }
 }
