@@ -32,7 +32,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   /// @param _operator The address of a new official operator.
   /// An official operator must be a contract.
   function addOfficialOperator(address _operator) public onlyOwner {
-    require(!isRegularAddress(_operator));
+    require(_operator.isContract());
 
     /// revert if _operator is already in mOfficialOperatorSet
     require(mOfficialOperatorSet.add(_operator));
@@ -70,7 +70,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   /// @param _operator address to check if it has the right to manage the tokens
   /// @param _tokenHolder address which holds the tokens to be managed
   /// @return `true` if `_operator` is authorized for `_tokenHolder`
-  function isOperatorFor(address _operator, address _tokenHolder) public constant returns (bool) {
+  function isOperatorFor(address _operator, address _tokenHolder) public view returns (bool) {
     return (
       (_operator == _tokenHolder)
       || (!mIsRejectingOfficialOperators[_tokenHolder] && mOfficialOperatorSet.contains(_operator))
