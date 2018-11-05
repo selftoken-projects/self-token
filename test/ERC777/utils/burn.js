@@ -83,23 +83,6 @@ exports.test = function (web3, accounts, token) {
         await utils.assertTotalSupply(web3, token, 100);
       });
 
-    it(`should not let ${utils.formatAccount(accounts[0])} burn 0.007 ` +
-      `${token.symbol} (< granulairty)`, async function () {
-        await utils.assertBalance(web3, token, accounts[0], 10);
-
-        await token.contract.methods
-          .burn(web3.utils.toWei('0.007'), '0x')
-          .send({
-            gas: 300000,
-            from: accounts[0]
-          })
-          .should.be.rejectedWith('revert');
-
-        await utils.getBlock(web3);
-        await utils.assertBalance(web3, token, accounts[0], 10);
-        await utils.assertTotalSupply(web3, token, 100);
-      });
-
     it(`should not let ${utils.formatAccount(accounts[1])} burn 3 ` +
       `${token.symbol} (not owner)`, async function () {
         await utils.assertBalance(web3, token, accounts[1], 10);

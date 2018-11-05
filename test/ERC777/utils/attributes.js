@@ -25,7 +25,7 @@ exports.test = function (web3, accounts, token) {
         const granularity = (
           await token.contract.methods.granularity().call()).toString();
         assert.strictEqual(
-          web3.utils.fromWei(granularity),
+          granularity,
           token.granularity
         );
       }

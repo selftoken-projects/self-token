@@ -25,7 +25,10 @@ module.exports = {
   log,
 
   formatAccount(account) {
-    if (testAccounts.includes(account)) { return `${account.slice(0, 4)}...`; }
+    if (account == undefined) return [];
+    if (testAccounts.includes(account)) {
+      return `${account.slice(0, 4)}...`;
+    }
     return account.slice(0, 8);
   },
 
