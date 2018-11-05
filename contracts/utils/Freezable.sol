@@ -70,6 +70,8 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
   whenAccountNotFrozen(msg.sender) 
   returns (bool) 
   {
+    require(msg.sender != owner);       // Only the owner cannot freeze herself
+    
     frozenAccounts[msg.sender] = true;
     emit AccountFrozen(msg.sender);
     return true;
