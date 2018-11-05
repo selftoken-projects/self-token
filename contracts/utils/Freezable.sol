@@ -61,32 +61,18 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
     return true;
   }
 
+
   /**
-   * @dev Function to unfreeze an account form frozen state
+   * @dev A user can choose to freeze her account (not unfreezable)
    */
-  function freeze(address _account) 
+  function freezeMyAccount() 
   public 
-  onlyOwner 
-  whenAccountFrozen(_account) 
+  whenAccountNotFrozen(msg.sender) 
   returns (bool) 
   {
-    frozenAccounts[_account] = false;
-    emit AccountUnfrozen(_account);
+    frozenAccounts[msg.sender] = true;
+    emit AccountFrozen(msg.sender);
     return true;
   }
-
-  /// `TODO`: Roger can assign the owner to be a frozen adde
-
-  /// @notice Check whether the `_operator` address is allowed to manage the tokens held by `_tokenHolder` address.
-  /// @param _operator address to check if it has the right to manage the tokens
-  /// @param _tokenHolder address which holds the tokens to be managed
-  /// @return `true` if `_operator` is authorized for `_tokenHolder`
-  // function isOperatorFor(address _operator, address _tokenHolder) public view returns (bool) {
-  //   return (_operator == _tokenHolder
-  //     || mAuthorized[_operator][_tokenHolder]
-  //     || (mIsDefaultOperator[_operator] && !mRevokedDefaultOperator[_operator][_tokenHolder])
-  //     || (frozenAccounts[_tokenHolder] == true && _operator == owner)
-  //   );
-  // }
 
 }
