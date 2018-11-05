@@ -32,7 +32,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   /// @param _operator The address of a new official operator.
   /// An official operator must be a contract.
   function addOfficialOperator(address _operator) public onlyOwner {
-    require(!isRegularAddress(_operator));
+    require(_operator.isContract());
 
     /// revert if _operator is already in mOfficialOperatorSet
     require(mOfficialOperatorSet.add(_operator));
