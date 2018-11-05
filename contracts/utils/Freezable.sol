@@ -36,7 +36,12 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
   /**
    * @dev Function to freeze an account from transactions
    */
-  function freeze(address _account) public onlyOwner whenAccountNotFrozen(_account) returns (bool) {
+  function freeze(address _account) 
+  public 
+  onlyOwner 
+  whenAccountNotFrozen(_account) 
+  returns (bool) 
+  {
     frozenAccounts[_account] = true;
     emit AccountFrozen(_account);
     return true;
@@ -45,7 +50,26 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
   /**
    * @dev Function to unfreeze an account form frozen state
    */
-  function unfreeze(address _account) public onlyOwner whenAccountFrozen(_account) returns (bool) {
+  function unfreeze(address _account) 
+  public 
+  onlyOwner 
+  whenAccountFrozen(_account) 
+  returns (bool) 
+  {
+    frozenAccounts[_account] = false;
+    emit AccountUnfrozen(_account);
+    return true;
+  }
+
+  /**
+   * @dev Function to unfreeze an account form frozen state
+   */
+  function freeze(address _account) 
+  public 
+  onlyOwner 
+  whenAccountFrozen(_account) 
+  returns (bool) 
+  {
     frozenAccounts[_account] = false;
     emit AccountUnfrozen(_account);
     return true;
