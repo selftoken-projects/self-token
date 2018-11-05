@@ -1,14 +1,15 @@
 const shouldFail = require("./helper/shouldFail");
-const { expectThrow } = require("openzeppelin-solidity/test/helpers/expectThrow");
-const expectEvent = require("openzeppelin-solidity/test/helpers/expectEvent");
+const expectEvent = require("./helper/expectEvent");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
 const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
+// BigNumber.config({ ERRORS: false });
 
 let erc820Registry, selfToken, operator1;
-const AMOUNT_TO_MINT = new BigNumber(100);
-const CAP = new BigNumber(1e9 * 1e18);
+const UNIT_1e18 = new BigNumber(1e18);
+const AMOUNT_TO_MINT = new BigNumber(100 * UNIT_1e18);
+const CAP = new BigNumber(1e9 * UNIT_1e18);
 
 contract('SelfToken', function (accounts) {
   const [owner, user1, user2, user3, anyone] = accounts;
@@ -35,27 +36,78 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should allow mint from owner to buyer1", async function () {
-    // AMOUNT_TO_MINT = 100
-    await selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner});
+    // Minted: owner mints 100 to user1
+    await expectEvent.inTransaction(
+      selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}),
+      "Minted", {
+        operator: owner,
+        to: user1,
+        amount: AMOUNT_TO_MINT,
+        operatorData: "0x"
+      }
+    );
 
     // total supply == amount to mint == 100
     (await selfToken.totalSupply()).should.be.bignumber.equal(AMOUNT_TO_MINT);
 
-
-
-    // await expectEvent.inTransaction(
-    //   selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}),
-    //   "Mint", {
-    //     operator: owner,
-    //     to: user1,
-    //     amount: AMOUNT_TO_MINT,
-    //     operatorData: ""
-    //   }
-    // );
-
-
-
+    // check user1 balance
+    (await selfToken.balanceOf(user1)).should.be.bignumber.equal(AMOUNT_TO_MINT);
   });
 
+  // cannot exceed cap
+  it("should not allow exceed cap", async function () {
+    await shouldFail.reverting(selfToken.mint(user2, CAP, "", {from: owner}));
+
+    // total supply == amount to mint == 100
+    (await selfToken.totalSupply()).should.be.bignumber.equal(AMOUNT_TO_MINT);
+
+    // check user2 balance
+    (await selfToken.balanceOf(user2)).should.be.bignumber.equal(0);
+  });
+
+  // mint 0 when trying to mint 0.5
+  it("should fail on minting not multiple number (granuarity)", async function () {
+    await expectEvent.inTransaction(
+      selfToken.mint(user2, 0.5, "", {from: owner}),
+      "Minted", {
+        operator: owner,
+        to: user2,
+        amount: 0,
+        operatorData: "0x"
+      }
+    );
+
+    (await selfToken.balanceOf(user2)).should.be.bignumber.equal(0);
+  });
+
+  // should allow reaching cap
+  it("should allow reaching cap", async function () {
+    // Step 1: last 1e18 to reach (UNIT_1e18)
+    await expectEvent.inTransaction(
+      selfToken.mint(user2, CAP - AMOUNT_TO_MINT - UNIT_1e18, "", {from: owner}),
+      "Minted", {
+        operator: owner,
+        to: user2,
+        amount: CAP - AMOUNT_TO_MINT - UNIT_1e18,
+        operatorData: "0x"
+      }
+    );
+
+    (await selfToken.totalSupply()).should.be.bignumber.equal(CAP - UNIT_1e18);
+
+    // Step 2: do the last 1e18
+    await expectEvent.inTransaction(
+      selfToken.mint(user2, UNIT_1e18, "", {from: owner}),
+      "Minted", {
+        operator: owner,
+        to: user2,
+        amount: UNIT_1e18,
+        operatorData: "0x"
+      }
+    );
+
+    // total supply == CAP
+    (await selfToken.totalSupply()).should.be.bignumber.equal(CAP);
+  });
 
 });
