@@ -7,7 +7,8 @@ const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
 
 let erc820Registry, selfToken, operator1;
-const AMOUNT_TO_MINT = 100;
+const AMOUNT_TO_MINT = new BigNumber(100);
+const CAP = new BigNumber(1e9 * 1e18);
 
 contract('SelfToken', function (accounts) {
   const [owner, user1, user2, user3, anyone] = accounts;
@@ -23,23 +24,24 @@ contract('SelfToken', function (accounts) {
 
   it("should deploy new contract", async function () {
     selfToken = await SelfToken.new();
-    // operator1 = await BatchSendOperator.new();
-    // selfToken.addOfficialOperator(operator1.address, { from: owner });
   });
 
-  it("should allow mint from operator1 to buyer1", async function () {
+  it("total supply should be zero", async function () {
+    (await selfToken.totalSupply()).should.be.bignumber.equal(0);
+  });
 
-    // await expectEvent.inTransaction(
-    //   selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: operator1.address}),
-    //   "Mint", {
-    //     operator: operator1.address,
-    //     to: user1,
-    //     amount: AMOUNT_TO_MINT,
-    //     operatorData:""
-    //   }
-    // );
-    // await selfToken.mint(buyer1, 100, "");
+  it("total supply CAP should be 10000000000000", async function () {
+    (await selfToken.totalSupplyCap()).should.be.bignumber.equal(CAP);
+  });
+
+  it("should allow mint from owner to buyer1", async function () {
+    // AMOUNT_TO_MINT = 100
     await selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner});
+
+    // total supply == amount to mint == 100
+    (await selfToken.totalSupply()).should.be.bignumber.equal(AMOUNT_TO_MINT);
+
+
 
     // await expectEvent.inTransaction(
     //   selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}),
