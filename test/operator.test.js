@@ -8,7 +8,92 @@ const SelfToken = artifacts.require("SelfToken");
 const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
 
-let erc820Registry, selfToken, operator1, operator2;
+let erc820Registry, selfToken, operator1, operator2, officialOperators = [];
+
+function addAuthorizedOperators(authorizedOperators, user) {
+  return new Promise(function (resolve, reject) {
+
+    let AuthorizedOperatorEvent = selfToken.AuthorizedOperator({}, {
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: user
+    })
+    AuthorizedOperatorEvent.get((error, logs) => {
+      if (error) reject(error);
+
+      // logs.forEach(log => console.log(log.args))
+      var itemsProcessed = 0;
+      logs.forEach(log => {
+        authorizedOperators.push(log.args.operator);
+        // console.log(authorizedOperators)
+
+        // resolve promise on last processed item 
+        itemsProcessed++;
+        if (itemsProcessed === authorizedOperators.length) {
+          resolve(authorizedOperators);
+        }
+      })
+    })
+  });
+}
+
+function removeRevokedOperators(authorizedOperators, user) {
+  return new Promise(function (resolve, reject) {
+    let RevokedOperatorEvent = selfToken.RevokedOperator({}, {
+      fromBlock: 0,
+      toBlock: 'latest',
+      address: user
+    })
+    RevokedOperatorEvent.get((error, logs) => {
+      if (error) reject(error);
+
+      // logs.forEach(log => console.log(log.args))
+      var itemsProcessed = 0;
+      logs.forEach(log => {
+
+        let indexOfElementToRemove = authorizedOperators.indexOf(log.args.operator);
+        if (indexOfElementToRemove > -1) {
+          authorizedOperators.splice(indexOfElementToRemove, 1);
+        }
+        // console.log(authorizedOperators)
+
+
+        // resolve promise on last processed item 
+        itemsProcessed++;
+        if (itemsProcessed === authorizedOperators.length) {
+          resolve(authorizedOperators);
+        }
+      })
+    })
+  });
+}
+
+function addOfficialOperators(officialOperators, authorizedOperators, user) {
+  return new Promise(async function (resolve, reject) {
+    let acceptAllOfficialOperators = await selfToken.isUserAcceptingAllOfficialOperators(user)
+    if (acceptAllOfficialOperators) {
+
+      // TODO: do not readd operator
+
+      var itemsProcessed = 0;
+      // console.log(officialOperators)
+      officialOperators.forEach(officialOperator => {
+        // if this operator is not in authorizedOperators
+        if (authorizedOperators.indexOf(officialOperator) == -1) {
+          authorizedOperators.push(officialOperator);
+        }
+
+        // resolve promise on last processed item 
+        itemsProcessed++;
+        if (itemsProcessed === officialOperators.length) {
+          resolve(authorizedOperators);
+        }
+      })
+    }
+    // else do nothing and resolve directly
+    else resolve(authorizedOperators);
+  })
+}
 
 contract('SelfToken', function (accounts) {
   const [owner, user1, anyone] = accounts;
@@ -80,6 +165,9 @@ contract('SelfToken', function (accounts) {
       }
     );
 
+    // server update official operator 
+    officialOperators.push(operator1)
+
     // `operator1` should be an official operator now.
     assert.equal(await selfToken.isOfficialOperator(operator1.address), true);
   });
@@ -104,6 +192,10 @@ contract('SelfToken', function (accounts) {
       }
     );
 
+    // server update official operator 
+    officialOperators.splice(officialOperators.indexOf(operator1.address), 1)
+
+
     // `operator1` should not be an official operator now.
     assert.equal(await selfToken.isOfficialOperator(operator1.address), false);
   });
@@ -113,6 +205,9 @@ contract('SelfToken', function (accounts) {
     await selfToken.addOfficialOperator(operator1.address, {
       from: owner
     });
+
+    // server update official operator 
+    officialOperators.push(operator1.address)
 
     // By default, a user accepts all official operators
     assert.equal(await selfToken.isUserAcceptingAllOfficialOperators(user1), true);
@@ -148,25 +243,9 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isUserAcceptingAllOfficialOperators(user1), true);
     // `operator1` should be an operator for `user1`.
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
-
-    // remove operator1 from official operators
-    await selfToken.removeOfficialOperator(operator1.address, {
-      from: owner
-    });
   });
 
-  it("can view all authorized operator", async function () {
-    // offchain keep track of a list of official/unofficial operators
-    let operatorSet = new Set();
-
-    // add official operator (they are also authorized by default)
-    await selfToken.addOfficialOperator(operator1.address, {
-      from: owner
-    });
-    operatorSet.add(operator1.address);
-
-    // official operator should be authorized by default
-    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
+  it("token holder can authorize another unofficial operator", async function () {
 
     // authorize unofficial operators
     await expectEvent.inTransaction(
@@ -178,25 +257,23 @@ contract('SelfToken', function (accounts) {
         tokenHolder: user1,
       }
     );
-    operatorSet.add(operator2.address);
-    // TODO: not sure the logic yet
     assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
+  });
 
-    // // loop through all possible operators
-    // let authorizedOperators = []
-    // let cnt = 0;
-    // operatorSet.forEach(async function (key, operator, set) {
-    //   cnt++;
-    //   let isOperator = await selfToken.isOperatorFor(operator, user1)
-    //   if (isOperator) {
-    //     authorizedOperators.push(operator);
-    //   }
-    //   if (cnt == set.size) {
-    //     // deepEqual compares whether the two array have the same value
-    //     // TODO: not sure the logic yet
-    //     assert.deepEqual(authorizedOperators, [operator1.address, operator2.address])
-    //   }
-    // });
+  it("token holder can view all authorized operator", async function () {
+
+    // view all authorized operators by querying past events
+    let authorizedOperators = []
+
+    authorizedOperators = await addAuthorizedOperators(authorizedOperators, user1);
+    authorizedOperators = await removeRevokedOperators(authorizedOperators, user1);
+    authorizedOperators = await addOfficialOperators(officialOperators, authorizedOperators, user1);
+
+    // should have two authorized operators 
+    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
+    // sort before comparing arrays to ignore order of array elements
+    assert.deepEqual(authorizedOperators.sort(), [operator1.address, operator2.address].sort())
 
     // unauthorize unofficial operators
     await expectEvent.inTransaction(
@@ -209,23 +286,18 @@ contract('SelfToken', function (accounts) {
       }
     );
 
+    // list all authorizedOperators again
+    authorizedOperators = []
+
+    authorizedOperators = await addAuthorizedOperators(authorizedOperators, user1);
+    authorizedOperators = await removeRevokedOperators(authorizedOperators, user1);
+    authorizedOperators = await addOfficialOperators(officialOperators, authorizedOperators, user1);
+
+    // should one have one authorized operator
     assert.equal(await selfToken.isOperatorFor(operator2.address, user1), false);
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
 
-    // // check all operators again
-    // authorizedOperators = []
-    // cnt = 0;
-    // operatorSet.forEach(async function (key, operator, set) {
-    //   cnt++;
-    //   let isOperator = await selfToken.isOperatorFor(operator, user1)
-    //   if (isOperator) {
-    //     authorizedOperators.push(operator);
-    //   }
-    //   if (cnt == set.size) {
-    //     // deepEqual compares whether the two array have the same value
-    //     assert.deepEqual(authorizedOperators, [operator1.address])
-    //   }
-    // });
+    assert.deepEqual(authorizedOperators, [operator1.address])
   })
 
   it("should not be able to authorize non contract operator", async function () {
