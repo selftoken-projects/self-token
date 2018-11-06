@@ -145,7 +145,6 @@ contract('SelfToken', function (accounts) {
         operatorData: "0x"
       }
     );
-
   });
 
 
@@ -160,6 +159,12 @@ contract('SelfToken', function (accounts) {
 
     // buyer1 unfreeze
     assert.equal(await selfToken.frozenAccounts(buyer1), false);
+  });
+
+  it("owner cannot freeze itself", async function () {
+    await shouldFail.reverting(selfToken.freezeMyAccount({
+      from: owner
+    }));
   });
 
 });
