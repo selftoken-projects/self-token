@@ -37,6 +37,6 @@ interface ERC777Token {
   ); // solhint-disable-next-line separate-by-one-line-in-contract
   event Minted(address indexed operator, address indexed to, uint256 amount, bytes operatorData);
   event Burned(address indexed operator, address indexed from, uint256 amount, bytes holderData, bytes operatorData);
-  event AuthorizedOperator(address operator, address tokenHolder);
+  event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
   event RevokedOperator(address indexed operator, address indexed tokenHolder);
 }

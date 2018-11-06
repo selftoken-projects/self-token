@@ -31,9 +31,20 @@ contract('SelfToken', function (accounts) {
 
   // TO FIX:
   it("normal users should be able to authorize operator for themselves", async function () {
-    await selfToken.authorizeOperator(operator1.address, {
-      from: user1
-    });
+    // `operator1` should not be an official operator initially.
+    assert.equal(await selfToken.isOfficialOperator(operator1.address), false);
+
+    // authorize an operator which is not an official operator
+    await expectEvent.inTransaction(
+      selfToken.authorizeOperator(operator1.address, {
+        from: user1
+      }),
+      "AuthorizedOperator", {
+        operator: operator1.address,
+        tokenHolder: user1
+      }
+    );
+
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   })
 
