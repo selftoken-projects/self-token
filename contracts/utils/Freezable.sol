@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import { Ownable } from "../openzeppelin-solidity/ownership/Ownable.sol";
 // import { ERC777ERC20BaseToken } from "../ERC777/ERC777ERC20BaseToken.sol";
 
 /// @title An inheritable extension for a contract to freeze accessibility of any specific addresses

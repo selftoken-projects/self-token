@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
 import { AddressSet } from "./utils/AddressSet.sol";
-import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import { Ownable } from "./openzeppelin-solidity/ownership/Ownable.sol";
 
 /// @title ERC777 ERC20 Token with Official Operators
 /// @author Roger-Wu

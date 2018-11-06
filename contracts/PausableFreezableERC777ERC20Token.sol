@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
-import { Pausable } from "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import { Pausable } from "./openzeppelin-solidity/lifecycle/Pausable.sol";
 import { Freezable } from "./utils/Freezable.sol";
 
 /// @dev The owner can pause/unpause the token.
