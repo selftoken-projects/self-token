@@ -5,15 +5,15 @@ const SelfToken = artifacts.require("SelfToken");
 const ExampleApprovalRecipient = artifacts.require("ExampleApprovalRecipient");
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
-  .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+// const should = require('chai')
+//   .use(require('chai-as-promised'))
+//   .use(require('chai-bignumber')(BigNumber))
+//   .should();
 
 let erc820Registry, selfToken, exampleApprovalRecipient;
 
 contract('SelfToken', function (accounts) {
-  const [owner, merchant1, user1, anyone] = accounts;
+  const [owner, merchant1, user1] = accounts;
   const price = 100;
   const initialTokenBalance = 1000;
   const extraData = "0x5e1f";
@@ -32,23 +32,11 @@ contract('SelfToken', function (accounts) {
     exampleApprovalRecipient = await ExampleApprovalRecipient.new(
       merchant1, selfToken.address, price, { from: merchant1 }
     );
-
-    selfToken.mint(user1, initialTokenBalance, "", { from: owner });
   });
 
-  it("should mint tokens to user1", async function () {
-    (await selfToken.balanceOf(user1)).should.be.bignumber.equal(initialTokenBalance);
-  });
+  it("should allow the user to pay tokens and buy something in one tx with approveAndCall", async function () {
+    selfToken.mint(user1, price, "", { from: owner });
 
-  it("should fail if not approving enough tokens", async function () {
-    shouldFail.reverting(
-      selfToken.approveAndCall(
-        exampleApprovalRecipient.address, price - 1, extraData, { from: user1 }
-      )
-    );
-  });
-
-  it("should approving tokens and buy something", async function () {
     const receipt = await selfToken.approveAndCall(
       exampleApprovalRecipient.address, price, extraData, { from: user1 }
     );
@@ -64,5 +52,59 @@ contract('SelfToken', function (accounts) {
 
     (await selfToken.balanceOf(merchant1)).should.be.bignumber.equal(price);
     (await exampleApprovalRecipient.message()).should.equal(extraData);
+  });
+
+  // The following test cases are actually testing ExampleApprovalRecipient.sol
+  // instead of approveAndCall.
+  // beforeEach is still called before every it.
+  describe("testing ExampleApprovalRecipient", function () {
+    it("approveAndCall should fail if the user didn't approve enough tokens", async function () {
+      selfToken.mint(user1, price, "", { from: owner });
+
+      shouldFail.reverting(
+        selfToken.approveAndCall(
+          exampleApprovalRecipient.address, price - 1, extraData, { from: user1 }
+        )
+      );
+    });
+
+    it("approveAndCall should fail if the user didn't have enough tokens", async function () {
+      selfToken.mint(user1, price - 1, "", { from: owner });
+
+      shouldFail.reverting(
+        selfToken.approveAndCall(
+          exampleApprovalRecipient.address, price, extraData, { from: user1 }
+        )
+      );
+    });
+
+    it("approveAndCall should fail if the user tries to pay different tokens", async function () {
+      const fakeSelfToken = await SelfToken.new({ from: owner });
+      fakeSelfToken.mint(user1, initialTokenBalance, "", { from: owner });
+
+      // approve fakeSelfToken and call exampleApprovalRecipient's receiveApproval.
+      shouldFail.reverting(
+        fakeSelfToken.approveAndCall(
+          exampleApprovalRecipient.address, price, extraData, { from: user1 }
+        )
+      );
+    });
+
+    it("should only pay tokens equal to the price even if a user approves more tokens", async function () {
+      selfToken.mint(user1, price * 2, "", { from: owner });
+
+      expectEvent.inTransaction(
+        selfToken.approveAndCall(
+          exampleApprovalRecipient.address, price * 2, extraData, { from: user1 }
+        ),
+        "Transfer", {
+          from: user1,
+          to: merchant1,
+          amount: price,
+        }
+      );
+
+      (await selfToken.balanceOf(merchant1)).should.be.bignumber.equal(price);
+    });
   });
 });
