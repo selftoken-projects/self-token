@@ -147,7 +147,6 @@ contract('SelfToken', function (accounts) {
     );
   });
 
-
   it("should allow owner unfreeze buyer1 account", async function () {
     // owner can unfreeze buyer1
     await expectEvent.inTransaction(
@@ -159,12 +158,6 @@ contract('SelfToken', function (accounts) {
 
     // buyer1 unfreeze
     assert.equal(await selfToken.frozenAccounts(buyer1), false);
-  });
-
-  it("owner cannot freeze itself", async function () {
-    await shouldFail.reverting(selfToken.freezeMyAccount({
-      from: owner
-    }));
   });
 
 });
