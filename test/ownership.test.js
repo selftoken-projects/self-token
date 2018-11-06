@@ -3,9 +3,11 @@ const expectEvent = require("openzeppelin-solidity/test/helpers/expectEvent");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
 const BigNumber = web3.BigNumber;
+const { ether } = require('openzeppelin-solidity/test/helpers/ether');
+
 
 let erc820Registry, selfToken;
-const UNIT_1e18 = new BigNumber(1e18);
+const UNIT_1e18 = ether(1);
 const AMOUNT_TO_MINT = new BigNumber(1 * UNIT_1e18);
 
 contract('SelfToken', function (accounts) {
@@ -42,6 +44,11 @@ contract('SelfToken', function (accounts) {
   // transfer ownership to user1
   it("transfer ownership to user1", async function () {
     assert.ok(await selfToken.transferOwnership(user1, {from: owner}));
+  });
+
+  // owner can still mint before user 1 claims ownership
+  it("owner can still mint before user 1 claims ownership", async function() {
+    assert.ok(await selfToken.mint(user1, AMOUNT_TO_MINT, "", { from: owner }));
   });
 
   // user (new owner) can not mint, cuz user 1 is not yet an owner (need to claim)
