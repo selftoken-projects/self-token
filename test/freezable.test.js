@@ -1,6 +1,8 @@
 const shouldFail = require("./helper/shouldFail");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
+const expectEvent = require("./helper/expectEvent");
+
 
 let erc820Registry, selfToken;
 
@@ -105,6 +107,46 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow unfreezing buyer1 again", async function () {
     await shouldFail.reverting(selfToken.unfreeze(buyer1));
+  });
+
+  /* New Test Cases for PR #9  */
+
+  it("should allow freeze my account", async function () {
+    await expectEvent.inTransaction(
+      selfToken.freezeMyAccount({ from: buyer1 }),
+      "AccountFrozen", {
+        _account: buyer1
+      }
+    );
+
+    // buyer1 is frozen
+    assert.equal(await selfToken.frozenAccounts(buyer1), true);
+
+    // buyer1 cannot transfer
+    await shouldFail.reverting(selfToken.transfer(buyer2, 1, {
+      from: buyer1
+    }));
+
+    // buyer1 cannot unfreeze itself
+    await shouldFail.reverting(selfToken.unfreeze(buyer1, {
+      from: buyer1
+    }));
+
+    // owner can unfreeze buyer1
+    // await shouldFail.reverting(selfToken.unfreeze(buyer1, {
+    //   from: owner
+    // }));
+
+    await expectEvent.inTransaction(
+      selfToken.unfreeze(buyer1, { from: owner }),
+      "AccountUnfrozen", {
+        _account: buyer1
+      }
+    );
+
+    // buyer1 unfreeze
+    assert.equal(await selfToken.frozenAccounts(buyer1), false);
+
   });
 
 });
