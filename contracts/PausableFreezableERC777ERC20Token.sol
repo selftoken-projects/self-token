@@ -51,35 +51,6 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     doBurn(msg.sender, _tokenHolder, _amount, _holderData, _operatorData);
   }
 
-  function doSend(
-    address _operator,
-    address _from,
-    address _to,
-    uint256 _amount,
-    bytes _userData,
-    bytes _operatorData,
-    bool _preventLocking
-  )
-    internal
-    whenNotPaused
-    whenAccountNotFrozen(msg.sender)
-    whenAccountNotFrozen(_operator)
-    whenAccountNotFrozen(_from)
-    whenAccountNotFrozen(_to)
-  {
-    super.doSend(_operator, _from, _to, _amount, _userData, _operatorData, _preventLocking);
-  }
-
-  function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
-    internal
-    whenNotPaused
-    whenAccountNotFrozen(msg.sender)
-    whenAccountNotFrozen(_operator)
-    whenAccountNotFrozen(_tokenHolder)
-  {
-    super.doBurn(_operator, _tokenHolder, _amount, _holderData, _operatorData);
-  }
-
   // ERC20 methods
 
   function transfer(address _to, uint256 _amount)
@@ -113,6 +84,35 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     whenAccountNotFrozen(_spender)
     returns (bool success)
   {
-    return super.approve( _spender, _amount);
+    return super.approve(_spender, _amount);
+  }
+
+  function doSend(
+    address _operator,
+    address _from,
+    address _to,
+    uint256 _amount,
+    bytes _userData,
+    bytes _operatorData,
+    bool _preventLocking
+  )
+    internal
+    whenNotPaused
+    whenAccountNotFrozen(msg.sender)
+    whenAccountNotFrozen(_operator)
+    whenAccountNotFrozen(_from)
+    whenAccountNotFrozen(_to)
+  {
+    super.doSend(_operator, _from, _to, _amount, _userData, _operatorData, _preventLocking);
+  }
+
+  function doBurn(address _operator, address _tokenHolder, uint256 _amount, bytes _holderData, bytes _operatorData)
+    internal
+    whenNotPaused
+    whenAccountNotFrozen(msg.sender)
+    whenAccountNotFrozen(_operator)
+    whenAccountNotFrozen(_tokenHolder)
+  {
+    super.doBurn(_operator, _tokenHolder, _amount, _holderData, _operatorData);
   }
 }
