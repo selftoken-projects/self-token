@@ -5,11 +5,11 @@ const SelfToken = artifacts.require("SelfToken");
 const BatchSendOperator = artifacts.require("BatchSendOperator");
 const BigNumber = web3.BigNumber;
 // BigNumber.config({ ERRORS: false });
+const { ether } = require('openzeppelin-solidity/test/helpers/ether');
 
 let erc820Registry, selfToken, operator1;
-const UNIT_1e18 = new BigNumber(1e18);
-const AMOUNT_TO_MINT = new BigNumber(100 * UNIT_1e18);
-const CAP = new BigNumber(1e9 * UNIT_1e18);
+const AMOUNT_TO_MINT = ether(100);
+const CAP = ether(1e9);
 
 contract('SelfToken', function (accounts) {
   const [owner, user1, user2, user3, anyone] = accounts;
@@ -33,6 +33,10 @@ contract('SelfToken', function (accounts) {
 
   it("total supply CAP should be 10000000000000", async function () {
     (await selfToken.totalSupplyCap()).should.be.bignumber.equal(CAP);
+  });
+
+  it("should not allow non-owner to mint", async function () {
+    await shouldFail.reverting(selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: user2}));
   });
 
   it("should allow mint from owner to buyer1", async function () {
@@ -82,26 +86,26 @@ contract('SelfToken', function (accounts) {
 
   // should allow reaching cap
   it("should allow reaching cap", async function () {
-    // Step 1: last 1e18 to reach (UNIT_1e18)
+    // Step 1: last 1e18 to reach (ether(1))
     await expectEvent.inTransaction(
-      selfToken.mint(user2, CAP - AMOUNT_TO_MINT - UNIT_1e18, "", {from: owner}),
+      selfToken.mint(user2, CAP - AMOUNT_TO_MINT - ether(1), "", {from: owner}),
       "Minted", {
         operator: owner,
         to: user2,
-        amount: CAP - AMOUNT_TO_MINT - UNIT_1e18,
+        amount: CAP - AMOUNT_TO_MINT - ether(1),
         operatorData: "0x"
       }
     );
 
-    (await selfToken.totalSupply()).should.be.bignumber.equal(CAP - UNIT_1e18);
+    (await selfToken.totalSupply()).should.be.bignumber.equal(CAP - ether(1));
 
     // Step 2: do the last 1e18
     await expectEvent.inTransaction(
-      selfToken.mint(user2, UNIT_1e18, "", {from: owner}),
+      selfToken.mint(user2, ether(1), "", {from: owner}),
       "Minted", {
         operator: owner,
         to: user2,
-        amount: UNIT_1e18,
+        amount: ether(1),
         operatorData: "0x"
       }
     );
