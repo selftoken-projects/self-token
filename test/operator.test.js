@@ -200,7 +200,7 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOfficialOperator(operator1.address), false);
   });
 
-  it("can accept all official operators again after rejecting all", async function () {
+  it("should be able to accept all official operators again after rejecting all", async function () {
     // add operator1 to official operators
     await selfToken.addOfficialOperator(operator1.address, {
       from: owner
@@ -245,7 +245,7 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   });
 
-  it("token holder can authorize another unofficial operator", async function () {
+  it("should be able to authorize other unofficial operator when accept all official operators", async function () {
 
     // authorize unofficial operators
     await expectEvent.inTransaction(
@@ -260,7 +260,7 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
   });
 
-  it("token holder can view all authorized operator", async function () {
+  it("should be able to view all authorized operator", async function () {
 
     // view all authorized operators by querying past events
     let authorizedOperators = []
@@ -304,7 +304,7 @@ contract('SelfToken', function (accounts) {
     await expectThrow(selfToken.addOfficialOperator(user1));
   })
 
-  it("should not be able to unauthorize an authorized official operator one by one", async function () {
+  it("should not be able to unauthorize an authorized official operator when accepting all official operators", async function () {
     await selfToken.revokeOperator(operator1.address);
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   })
