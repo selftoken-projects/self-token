@@ -7,8 +7,7 @@ const { ether } = require('openzeppelin-solidity/test/helpers/ether');
 
 
 let erc820Registry, selfToken;
-const UNIT_1e18 = ether(1);
-const AMOUNT_TO_MINT = new BigNumber(1 * UNIT_1e18);
+const AMOUNT_TO_MINT = ether(1);
 
 contract('SelfToken', function (accounts) {
   const [owner, user1, user2, user3, anyone] = accounts;
