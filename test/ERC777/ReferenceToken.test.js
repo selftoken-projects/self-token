@@ -46,9 +46,6 @@ contract("SelfToken", function (accounts) {
       });
     assert.ok(token.contract.options.address);
 
-    // TODO: manually add default operators
-
-
     token.genMintTxForAccount = function (account, amount, operator, gas) {
       return token.contract.methods
         .mint(account, _web3.utils.toWei(amount), '0xcafe')
@@ -67,9 +64,9 @@ contract("SelfToken", function (accounts) {
   require("./utils/operator").test(_web3, accounts, token);
   // require("./utils/disabled.operatorBurn").test(_web3, accounts, token);
   require("./utils/operatorSend").test(_web3, accounts, token);
-  // require("./utils/tokensSender").test(_web3, accounts, token);
-  // require("./utils/tokensRecipient").test(_web3, accounts, token);
-  // require("./utils/erc20Compatibility").test(_web3, accounts, token);
+  require("./utils/tokensSender").test(_web3, accounts, token);
+  require("./utils/tokensRecipient").test(_web3, accounts, token);
+  require("./utils/erc20Compatibility").test(_web3, accounts, token);
 
 
 

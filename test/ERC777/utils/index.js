@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const chai = require('chai');
 const assert = chai.assert;
-const ERC820Registry = artifacts.require('ERC820Registry');
+const ERC820Registry = require("erc820");
 const testAccounts = [
   '0x093d49d617a10f26915553255ec3fee532d2c12f',
   '0x1dc728786e09f862e39be1f39dd218ee37feb68d',
@@ -53,10 +53,7 @@ module.exports = {
   },
 
   getERC820Registry(web3) {
-    return new web3.eth.Contract(
-      ERC820Registry.abi,
-      '0x991a1bcb077599290d7305493c9a630c20f8b798'
-    );
+    return erc820Registry;
   },
 
   async mintForAllAccounts(web3, accounts, token, operator, amount, gas) {
