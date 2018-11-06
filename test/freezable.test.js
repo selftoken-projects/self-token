@@ -131,12 +131,26 @@ contract('SelfToken', function (accounts) {
     await shouldFail.reverting(selfToken.unfreeze(buyer1, {
       from: buyer1
     }));
+  });
 
+  it("should allow owner transferFromFrozenAccount buyer1 account", async function () {
+    await expectEvent.inTransaction(
+      selfToken.transferFromFrozenAccount(buyer1, buyer2, 1, { from: owner }),
+      "Sent", {
+        operator: owner,
+        from: buyer1,
+        to: buyer2,
+        amount: 1,
+        holderData: "0x",
+        operatorData: "0x"
+      }
+    );
+
+  });
+
+
+  it("should allow owner unfreeze buyer1 account", async function () {
     // owner can unfreeze buyer1
-    // await shouldFail.reverting(selfToken.unfreeze(buyer1, {
-    //   from: owner
-    // }));
-
     await expectEvent.inTransaction(
       selfToken.unfreeze(buyer1, { from: owner }),
       "AccountUnfrozen", {
@@ -146,7 +160,6 @@ contract('SelfToken', function (accounts) {
 
     // buyer1 unfreeze
     assert.equal(await selfToken.frozenAccounts(buyer1), false);
-
   });
 
 });
