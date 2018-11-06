@@ -19,5 +19,11 @@ npm run lint:sol
 
 ```
 npm install -g surya
-surya inheritance contracts/* contracts/*/* | dot -Tpng > graph/SelfToken.png
+surya inheritance contracts/* contracts/*/* contracts/*/*/* | dot -Tpng > graph/SelfToken.png
+```
+
+## View Inheritance order
+
+```
+surya dependencies <contract_name> contracts/* contracts/*/* contracts/*/*/*
 ```
