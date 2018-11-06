@@ -35,6 +35,8 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
     callRecipient(msg.sender, address(0), _tokenHolder, _amount, "", _operatorData, true);
 
     emit Minted(msg.sender, _tokenHolder, _amount, _operatorData);
-    if (mErc20compatible) { emit Transfer(0x0, _tokenHolder, _amount); }
+    if (mErc20compatible) {
+      emit Transfer(0x0, _tokenHolder, _amount);
+    }
   }
 }

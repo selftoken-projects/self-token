@@ -11,11 +11,11 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
 
   event AccountFrozen(address indexed _account);
   event AccountUnfrozen(address indexed _account);
-  
+
   // frozen status of all accounts
   mapping(address=>bool) public frozenAccounts;
-  
-  
+
+
    /**
    * ///@dev Modifier to make a function callable only when the address is frozen.
    */
@@ -23,7 +23,7 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
     require(frozenAccounts[_account] == true);
     _;
   }
-  
+
   /**
    * @dev Modifier to make a function callable only when the address is not frozen.
    */
@@ -31,7 +31,7 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
     require(frozenAccounts[_account] == false);
     _;
   }
-  
+
 
   /**
    * @dev Function to freeze an account from transactions
@@ -57,12 +57,12 @@ contract Freezable is Ownable { //ERC777ERC20BaseToken
   /// @param _operator address to check if it has the right to manage the tokens
   /// @param _tokenHolder address which holds the tokens to be managed
   /// @return `true` if `_operator` is authorized for `_tokenHolder`
-  // function isOperatorFor(address _operator, address _tokenHolder) public constant returns (bool) {
+  // function isOperatorFor(address _operator, address _tokenHolder) public view returns (bool) {
   //   return (_operator == _tokenHolder
   //     || mAuthorized[_operator][_tokenHolder]
   //     || (mIsDefaultOperator[_operator] && !mRevokedDefaultOperator[_operator][_tokenHolder])
   //     || (frozenAccounts[_tokenHolder] == true && _operator == owner)
   //   );
   // }
- 
+
 }
