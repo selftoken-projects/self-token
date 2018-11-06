@@ -33,12 +33,14 @@ contract ExampleApprovalRecipient {
   ) external {
     // Only the token contract can call this function.
     // This may not be necessary.
-    require(msg.sender == address(tokenContract),
+    require(
+      msg.sender == address(tokenContract),
       "receiveApproval can only be called by a specific token contract."
     );
 
     // This is not necessary.
-    require(_token == address(tokenContract),
+    require(
+      _token == address(tokenContract),
       "Only receive tokens from a specific token contract."
     );
 
@@ -46,7 +48,10 @@ contract ExampleApprovalRecipient {
     // in approveAndCall.
     // This is not necessary. If not enough tokens were approved, `transferFrom`
     // will fail eventually, and the transaction will be reverted.
-    require(_value >= price, "Should approve tokens >= price in approveAndCall.");
+    require(
+      _value >= price,
+      "The token holder must approve tokens >= price in approveAndCall."
+    );
 
     _buySomething(_from, _extraData);
   }
@@ -60,7 +65,8 @@ contract ExampleApprovalRecipient {
     internal
   {
     // Not necessary. `transferFrom` will check this again.
-    require(tokenContract.allowance(_from, address(this)) >= price,
+    require(
+      tokenContract.allowance(_from, address(this)) >= price,
       "The token holder must approve tokens >= price to this contract."
     );
 
@@ -69,6 +75,9 @@ contract ExampleApprovalRecipient {
     emit SomethingPurchased(_from, _extraData);
 
     // Interact with the token contract to avoid re-entrancy attack.
-    require(tokenContract.transferFrom(_from, beneficiary, price), "Tokens were not transferred. The token holder must approve tokens >= price to this contract.");
+    require(
+      tokenContract.transferFrom(_from, beneficiary, price),
+      "Tokens were not transferred. The token holder must approve tokens >= price to this contract."
+    );
   }
 }
