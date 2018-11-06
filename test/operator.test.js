@@ -29,6 +29,14 @@ contract('SelfToken', function (accounts) {
     // console.log(selfToken)
   });
 
+  // TO FIX:
+  // it("should ", async function () {
+  //   await selfToken.authorizeOperator(operator1.address, {
+  //     from: user1
+  //   });
+  //   assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
+  // })
+
   it("should only allow the owner to add an official operator", async function () {
     shouldFail.reverting(selfToken.addOfficialOperator(operator1.address, {
       from: anyone
