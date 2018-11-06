@@ -51,7 +51,7 @@ contract('SelfToken', function (accounts) {
     });
 
     (await selfToken.balanceOf(merchant1)).should.be.bignumber.equal(price);
-    (await exampleApprovalRecipient.message()).should.equal(extraData);
+    (await exampleApprovalRecipient.message()).should.be.equal(extraData);
   });
 
   // The following test cases are actually testing ExampleApprovalRecipient.sol
