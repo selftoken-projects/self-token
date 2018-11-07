@@ -29,7 +29,7 @@ exports.test = function (web3, accounts, token) {
         arguments: [false]
       }).send({
         from: accounts[4],
-        gas: 500000,
+        gas: 300000,
         gasLimit: 4712388
       });
 
@@ -40,7 +40,8 @@ exports.test = function (web3, accounts, token) {
           web3.utils.keccak256('ERC777TokensRecipient'),
           recipient.options.address, {
             from: accounts[4],
-            gas: 500000
+            gas: 300000,
+            gasLimit: 4712388
           });
       assert.ok(recipient.options.address);
     });
