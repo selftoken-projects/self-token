@@ -5,7 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 chai.use(require('chai-as-promised')).should();
 const utils = require('./index');
-const OldExampleTokensSender = artifacts.require('ERC777TokensSender');
+const OldExampleTokensSender = artifacts.require('ExampleTokensSender');
 
 exports.test = function (web3, accounts, token) {
   const ExampleTokensSender = new web3.eth.Contract(

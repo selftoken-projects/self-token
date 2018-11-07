@@ -60,15 +60,15 @@ contract("SelfToken", function (accounts) {
   });
 
 
-  require("./utils/attributes").test(_web3, accounts, token);
-  require("./utils/mint").test(_web3, accounts, token);
-  require("./utils/burn").test(_web3, accounts, token);
-  require("./utils/send").test(_web3, accounts, token);
-  require("./utils/operator").test(_web3, accounts, token);
+  // require("./utils/attributes").test(_web3, accounts, token);
+  // require("./utils/mint").test(_web3, accounts, token);
+  // require("./utils/burn").test(_web3, accounts, token);
+  // require("./utils/send").test(_web3, accounts, token);
+  // require("./utils/operator").test(_web3, accounts, token);
   // require("./utils/disabled.operatorBurn").test(_web3, accounts, token);
-  require("./utils/operatorSend").test(_web3, accounts, token);
+  // require("./utils/operatorSend").test(_web3, accounts, token);
   // require("./utils/tokensSender").test(_web3, accounts, token);
-  // require("./utils/tokensRecipient").test(_web3, accounts, token);
+  require("./utils/tokensRecipient").test(_web3, accounts, token);
   // require("./utils/erc20Compatibility").test(_web3, accounts, token);
 
 

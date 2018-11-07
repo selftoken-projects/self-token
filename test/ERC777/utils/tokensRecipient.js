@@ -5,7 +5,7 @@ const chai = require("chai");
 const assert = chai.assert;
 chai.use(require("chai-as-promised")).should();
 const utils = require("./index");
-const OldExampleTokensRecipient = artifacts.require("ERC777TokensRecipient");
+const OldExampleTokensRecipient = artifacts.require("ExampleTokensRecipient");
 
 exports.test = function (web3, accounts, token) {
   const ExampleTokensRecipient = new web3.eth.Contract(
@@ -38,7 +38,6 @@ exports.test = function (web3, accounts, token) {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
-      assert.isFalse(await recipient.methods.notified().call());
 
       await recipient.methods
         .acceptTokens()
@@ -56,7 +55,6 @@ exports.test = function (web3, accounts, token) {
 
       await utils.getBlock(web3);
 
-      assert.isTrue(await recipient.methods.notified().call());
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 8.78);
       await utils.assertBalance(web3, token, recipient.options.address, 1.22);
@@ -66,7 +64,6 @@ exports.test = function (web3, accounts, token) {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
-      assert.isFalse(await recipient.methods.notified().call());
 
       await recipient.methods
         .rejectTokens()
@@ -86,7 +83,6 @@ exports.test = function (web3, accounts, token) {
       await utils.getBlock(web3);
 
       // revert will prevent setting notified to true
-      assert.isFalse(await recipient.methods.notified().call());
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
@@ -119,7 +115,6 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[4], 10);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
-        assert.isFalse(await recipient.methods.notified().call());
 
         await recipient.methods
           .acceptTokens()
@@ -137,7 +132,6 @@ exports.test = function (web3, accounts, token) {
 
         await utils.getBlock(web3);
 
-        assert.isTrue(await recipient.methods.notified().call());
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[4], 11.22);
         await utils.assertBalance(web3, token, accounts[5], 8.78);
@@ -160,7 +154,6 @@ exports.test = function (web3, accounts, token) {
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
-        assert.isFalse(await recipient.methods.notified().call());
 
         await token.contract.methods
           .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
@@ -173,7 +166,6 @@ exports.test = function (web3, accounts, token) {
         await utils.getBlock(web3);
 
         // revert will prevent setting notified to true
-        assert.isFalse(await recipient.methods.notified().call());
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
