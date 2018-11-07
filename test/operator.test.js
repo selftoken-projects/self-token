@@ -305,7 +305,9 @@ contract('SelfToken', function (accounts) {
   })
 
   it("should not be able to unauthorize an authorized official operator when accepting all official operators", async function () {
-    await selfToken.revokeOperator(operator1.address);
+    await shouldFail.reverting(selfToken.revokeOperator(operator1.address, {
+      from: user1
+    }))
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   })
 
@@ -319,6 +321,22 @@ contract('SelfToken', function (accounts) {
 
     await shouldFail.reverting(
       selfToken.authorizeOperator(
+        operator2.address, {
+          from: user1
+        })
+    );
+  })
+
+  it("should revert when rerevoking operators", async function () {
+    await selfToken.revokeOperator(
+      operator2.address, {
+        from: user1
+      })
+
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), false);
+
+    await shouldFail.reverting(
+      selfToken.revokeOperator(
         operator2.address, {
           from: user1
         })

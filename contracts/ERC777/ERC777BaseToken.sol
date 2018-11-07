@@ -124,6 +124,8 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   /// @param _operator The operator that wants to be Revoked
   function revokeOperator(address _operator) public {
     require(_operator != msg.sender);
+    require(mAuthorized[_operator][msg.sender]);
+
     if (mIsDefaultOperator[_operator]) {
       mRevokedDefaultOperator[_operator][msg.sender] = true;
     } else {
