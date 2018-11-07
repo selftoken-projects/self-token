@@ -1,5 +1,7 @@
 # self-token
 
+[![Build Status](https://travis-ci.org/selftoken-projects/self-token.svg?branch=master)](https://travis-ci.org/selftoken-projects/self-token)
+
 ## linting
 
 We use Solium to lint solidity contracts.
