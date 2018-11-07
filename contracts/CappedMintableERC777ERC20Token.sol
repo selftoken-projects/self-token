@@ -21,7 +21,7 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
 
   /// @dev Generates `_amount` tokens to be assigned to `_tokenHolder`
   ///  Sample mint function to showcase the use of the `Minted` event and the logic to notify the recipient.
-  ///  Reference: https://github.com/jacquesd/ERC777/blob/devel/contracts/examples/ReferenceToken.sol
+  ///  Reference: https://github.com/jacquesd/ERC777/blob/devel/contracts/examples/SelfToken.sol
   /// @param _tokenHolder The address that will be assigned the new tokens
   /// @param _amount The quantity of tokens generated
   /// @param _operatorData Data that will be passed to the recipient as a first transfer
