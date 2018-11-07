@@ -300,7 +300,7 @@ contract('SelfToken', function (accounts) {
     assert.deepEqual(authorizedOperators, [operator1.address])
   })
 
-  it("should not be able to authorize non contract operator", async function () {
+  it("should not be able to add non contract official operator", async function () {
     await expectThrow(selfToken.addOfficialOperator(user1));
   })
 
