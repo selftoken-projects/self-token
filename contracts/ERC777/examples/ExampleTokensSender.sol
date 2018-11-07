@@ -7,14 +7,14 @@
  */
 pragma solidity 0.4.24;
 
-import { ERC820Implementer } from "../ERC820/ERC820Implementer.sol";
+import { ERC820Client } from "erc820/contracts/ERC820Client.sol";
 import { ERC820ImplementerInterface } from "erc820/contracts/ERC820ImplementerInterface.sol";
 import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import { ERC777TokensSender } from "../ERC777TokensSender.sol";
 import { ERC777Token } from "../ERC777Token.sol";
 
 
-contract ExampleTokensSender is ERC820Implementer, ERC820ImplementerInterface, ERC777TokensSender, Ownable {
+contract ExampleTokensSender is ERC820Client, ERC820ImplementerInterface, ERC777TokensSender, Ownable {
 
     bool private allowTokensToSend;
 
