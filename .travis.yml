@@ -19,4 +19,6 @@ install:
 #   - testrpc > testrpc.log &
 
 script:
+  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+  - codecov
   - ./scripts/test.sh
