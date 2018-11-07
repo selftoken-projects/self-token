@@ -11,7 +11,6 @@ pids
 *.seed
 allFiredEvents
 scTopics
-build
 
 # Coverage directory used by tools like istanbul
 coverage
