@@ -11,7 +11,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
 
   // ERC777 methods
 
-  /// @dev We can not call super.send() because send() is an xternal function.
+  /// @dev We can not call super.send() because send() is an external function.
   /// We can only override it.
   function send(address _to, uint256 _amount, bytes _userData)
     external
