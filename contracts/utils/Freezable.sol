@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import { Ownable } from "../openzeppelin-solidity/ownership/Ownable.sol";
 
 /// @title An inheritable extension for a contract to freeze accessibility of any specific addresses
 /// @author Jeff Hu

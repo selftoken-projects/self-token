@@ -30,12 +30,12 @@ contract('SelfToken', function (accounts) {
     assert.ok(await selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}));
   });
 
-  // fail when user 2 wants to mint 
+  // fail when user 2 wants to mint
   it("fail when user wants to mint", async function () {
     await shouldFail.reverting(selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: user2}));
   });
 
-  // fail when user 2 wants to transferOwnership 
+  // fail when user 2 wants to transferOwnership
   it("fail when user wants to mint", async function () {
     await shouldFail.reverting(selfToken.transferOwnership(user1, {from: user2}));
   });
@@ -62,6 +62,8 @@ contract('SelfToken', function (accounts) {
 
   // user 1 claim ownership
   it("user 1 claim ownership", async function () {
+    assert.equal(await selfToken.owner(), owner);
+
     await expectEvent.inTransaction(
       selfToken.claimOwnership({from: user1}),
       "OwnershipTransferred", {
@@ -71,6 +73,10 @@ contract('SelfToken', function (accounts) {
     );
   });
 
+  it("user 1 cannot claim ownership again 1", async function () {
+    assert.equal(await selfToken.owner(), user1);
+  });
+
   // user 1 cannot claim again
   it("user 1 cannot claim ownership again", async function () {
     await shouldFail.reverting(selfToken.claimOwnership({from: user1}));
@@ -78,6 +84,7 @@ contract('SelfToken', function (accounts) {
 
   // fail when original owner wants to mint
   it("fail when original owner wants to mint", async function () {
+    assert.equal(await selfToken.owner(), user1);
     await shouldFail.reverting(selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}));
   });
 
@@ -85,7 +92,7 @@ contract('SelfToken', function (accounts) {
   it("only owner can mint", async function () {
     assert.ok(await selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: user1}));
   });
-  
+
   // user renounce ownership
   it("user 1 renounce ownership", async function () {
     await expectEvent.inTransaction(
