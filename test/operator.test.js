@@ -308,4 +308,20 @@ contract('SelfToken', function (accounts) {
     await selfToken.revokeOperator(operator1.address);
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   })
+
+  it("should revert when reauthorizing operators", async function () {
+    await selfToken.authorizeOperator(
+      operator2.address, {
+        from: user1
+      })
+
+    assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
+
+    await shouldFail.reverting(
+      selfToken.authorizeOperator(
+        operator2.address, {
+          from: user1
+        })
+    );
+  })
 });

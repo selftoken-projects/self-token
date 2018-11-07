@@ -106,10 +106,12 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   /// @return the list of all the default operators
   function defaultOperators() public view returns (address[]) { return mDefaultOperators; }
 
-  /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens.
+  /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens. An operator cannot be reauthorized
   /// @param _operator The operator that wants to be Authorized
   function authorizeOperator(address _operator) public {
     require(_operator != msg.sender);
+    require(!mAuthorized[_operator][msg.sender]);
+
     if (mIsDefaultOperator[_operator]) {
       mRevokedDefaultOperator[_operator][msg.sender] = false;
     } else {
