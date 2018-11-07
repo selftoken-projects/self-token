@@ -18,12 +18,13 @@ const testAccounts = [
 ];
 const blocks = [];
 let blockIdx = 0;
+const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 let log = (msg) => process.env.MOCHA_VERBOSE && console.log(msg);
 
 module.exports = {
   log,
-
+  zeroAddress,
   formatAccount(account) {
     if (account == undefined) return [];
     if (testAccounts.includes(account)) {

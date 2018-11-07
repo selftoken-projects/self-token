@@ -5,7 +5,7 @@ const chai = require("chai");
 const assert = chai.assert;
 chai.use(require("chai-as-promised")).should();
 const utils = require("./index");
-const OldExampleTokensRecipient = artifacts.require("ERC777TokensRecipient");
+const OldExampleTokensRecipient = artifacts.require("ExampleTokensRecipient");
 
 exports.test = function (web3, accounts, token) {
   const ExampleTokensRecipient = new web3.eth.Contract(
@@ -26,19 +26,42 @@ exports.test = function (web3, accounts, token) {
       );
 
       recipient = await ExampleTokensRecipient.deploy({
-        arguments: [true]
+        arguments: [false]
       }).send({
         from: accounts[4],
         gasLimit: 4712388
       });
+
+      let erc820Registry = utils.getERC820Registry(web3);
+      await erc820Registry
+        .setInterfaceImplementer(
+          accounts[5],
+          web3.utils.keccak256('ERC777TokensRecipient'),
+          recipient.options.address, {
+            from: accounts[4]
+          });
       assert.ok(recipient.options.address);
+    });
+
+    // truffle clean-room is not able to revert the ERC820Registry
+    // manually unset any TokensRecipient that may have been set during testing.
+    afterEach(async function () {
+      for (let account of accounts) {
+        await erc820Registry
+          .setInterfaceImplementer(
+            account,
+            web3.utils.keccak256('ERC777TokensRecipient'),
+            utils.zeroAddress, {
+              from: account,
+              gas: 300000
+            });
+      }
     });
 
     it("should notify the recipient upon receiving tokens", async function () {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
-      assert.isFalse(await recipient.methods.notified().call());
 
       await recipient.methods
         .acceptTokens()
@@ -46,9 +69,12 @@ exports.test = function (web3, accounts, token) {
           gas: 300000,
           from: accounts[4]
         });
+      console.log(recipient.options.address)
+
+      console.log(await erc820Registry.interfaceAddr(recipient.options.address, "ERC777TokensRecipient"))
 
       await token.contract.methods
-        .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
+        .send(recipient.options.address, web3.utils.toWei('1'), '0x')
         .send({
           gas: 300000,
           from: accounts[5]
@@ -56,17 +82,15 @@ exports.test = function (web3, accounts, token) {
 
       await utils.getBlock(web3);
 
-      assert.isTrue(await recipient.methods.notified().call());
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
-      await utils.assertBalance(web3, token, accounts[5], 8.78);
-      await utils.assertBalance(web3, token, recipient.options.address, 1.22);
+      await utils.assertBalance(web3, token, accounts[5], 9);
+      await utils.assertBalance(web3, token, recipient.options.address, 1);
     });
 
     it("should let the recipient reject the tokens", async function () {
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
-      assert.isFalse(await recipient.methods.notified().call());
 
       await recipient.methods
         .rejectTokens()
@@ -76,7 +100,7 @@ exports.test = function (web3, accounts, token) {
         });
 
       await token.contract.methods
-        .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
+        .send(recipient.options.address, web3.utils.toWei("1"), "0x")
         .send({
           gas: 300000,
           from: accounts[5]
@@ -86,7 +110,6 @@ exports.test = function (web3, accounts, token) {
       await utils.getBlock(web3);
 
       // revert will prevent setting notified to true
-      assert.isFalse(await recipient.methods.notified().call());
       await utils.assertTotalSupply(web3, token, 10 * accounts.length);
       await utils.assertBalance(web3, token, accounts[5], 10);
       await utils.assertBalance(web3, token, recipient.options.address, 0);
@@ -105,21 +128,20 @@ exports.test = function (web3, accounts, token) {
         assert.ok(recipient.options.address);
 
         let erc820Registry = utils.getERC820Registry(web3);
-        await erc820Registry.methods
+
+        await erc820Registry
           .setInterfaceImplementer(
             accounts[4],
-            web3.utils.keccak256("ERC777TokensRecipient"),
-            recipient.options.address
-          )
-          .send({
-            from: accounts[4]
-          });
+            web3.utils.keccak256('ERC777TokensRecipient'),
+            recipient.options.address, {
+              from: accounts[4]
+            });
+        assert.ok(recipient.options.address);
 
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[4], 10);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
-        assert.isFalse(await recipient.methods.notified().call());
 
         await recipient.methods
           .acceptTokens()
@@ -129,7 +151,7 @@ exports.test = function (web3, accounts, token) {
           });
 
         await token.contract.methods
-          .send(accounts[4], web3.utils.toWei("1.22"), "0x")
+          .send(accounts[4], web3.utils.toWei("1"), "0x")
           .send({
             gas: 300000,
             from: accounts[5]
@@ -137,10 +159,9 @@ exports.test = function (web3, accounts, token) {
 
         await utils.getBlock(web3);
 
-        assert.isTrue(await recipient.methods.notified().call());
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
-        await utils.assertBalance(web3, token, accounts[4], 11.22);
-        await utils.assertBalance(web3, token, accounts[5], 8.78);
+        await utils.assertBalance(web3, token, accounts[4], 11);
+        await utils.assertBalance(web3, token, accounts[5], 9);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
       }
     );
@@ -160,10 +181,9 @@ exports.test = function (web3, accounts, token) {
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
-        assert.isFalse(await recipient.methods.notified().call());
 
         await token.contract.methods
-          .send(recipient.options.address, web3.utils.toWei("1.22"), "0x")
+          .send(recipient.options.address, web3.utils.toWei("1"), "0x")
           .send({
             gas: 300000,
             from: accounts[5]
@@ -173,13 +193,11 @@ exports.test = function (web3, accounts, token) {
         await utils.getBlock(web3);
 
         // revert will prevent setting notified to true
-        assert.isFalse(await recipient.methods.notified().call());
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
         await utils.assertBalance(web3, token, accounts[5], 10);
         await utils.assertBalance(web3, token, recipient.options.address, 0);
       }
     );
 
-    it.skip('should implement more tests for "TokensRecipient"');
   });
 };
