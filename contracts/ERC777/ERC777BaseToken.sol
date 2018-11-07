@@ -4,8 +4,8 @@
 pragma solidity 0.4.24;
 
 import { ERC820Client } from "erc820/contracts/ERC820Client.sol";
-import { SafeMath } from "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
+import { SafeMath } from "../openzeppelin-solidity/math/SafeMath.sol";
+import { Address } from "../openzeppelin-solidity/Address.sol";
 import { ERC777Token } from "./ERC777Token.sol";
 import { ERC777TokensSender } from "./ERC777TokensSender.sol";
 import { ERC777TokensRecipient } from "./ERC777TokensRecipient.sol";
@@ -13,7 +13,7 @@ import { ERC777TokensRecipient } from "./ERC777TokensRecipient.sol";
 
 contract ERC777BaseToken is ERC777Token, ERC820Client {
   using SafeMath for uint256;
-  using AddressUtils for address;
+  using Address for address;
 
   string internal mName;
   string internal mSymbol;
@@ -106,10 +106,12 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   /// @return the list of all the default operators
   function defaultOperators() public view returns (address[]) { return mDefaultOperators; }
 
-  /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens.
+  /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens. An operator cannot be reauthorized
   /// @param _operator The operator that wants to be Authorized
   function authorizeOperator(address _operator) public {
     require(_operator != msg.sender);
+    require(!mAuthorized[_operator][msg.sender]);
+
     if (mIsDefaultOperator[_operator]) {
       mRevokedDefaultOperator[_operator][msg.sender] = false;
     } else {
@@ -122,6 +124,8 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   /// @param _operator The operator that wants to be Revoked
   function revokeOperator(address _operator) public {
     require(_operator != msg.sender);
+    require(mAuthorized[_operator][msg.sender]);
+
     if (mIsDefaultOperator[_operator]) {
       mRevokedDefaultOperator[_operator][msg.sender] = true;
     } else {

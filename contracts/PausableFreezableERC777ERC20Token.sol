@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
-import { Pausable } from "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import { Pausable } from "./openzeppelin-solidity/lifecycle/Pausable.sol";
 import { Freezable } from "./utils/Freezable.sol";
 
 /// @dev The owner can pause/unpause the token.
@@ -85,6 +85,25 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     returns (bool success)
   {
     return super.approve(_spender, _amount);
+  }
+
+  /// @dev allow Owner to transfer funds from a Frozen account
+  /// @notice the "_from" account must be frozen
+  /// @notice only the owner can trigger this function
+  /// @notice super.doSend to skip "_from" frozen checking
+  function transferFromFrozenAccount(
+    address _from,
+    address _to,
+    uint256 _amount
+  )
+    public
+    onlyOwner
+    whenNotPaused
+    whenAccountFrozen(_from)
+    whenAccountNotFrozen(_to)
+    whenAccountNotFrozen(msg.sender)
+  {
+    super.doSend(msg.sender, _from, _to, _amount, "", "", true);
   }
 
   function doSend(
