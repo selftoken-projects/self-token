@@ -104,7 +104,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     whenAccountNotFrozen(_to)
     whenAccountNotFrozen(msg.sender)
   {
-    return super.doSend(msg.sender, _from, _to, _amount, "", "", true);
+    super.doSend(msg.sender, _from, _to, _amount, "", "", true);
   }
 
   function doSend(
