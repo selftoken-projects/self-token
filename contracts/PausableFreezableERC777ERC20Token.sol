@@ -87,6 +87,25 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     return super.approve(_spender, _amount);
   }
 
+  /// @dev allow Owner to transfer funds from a Frozen account
+  /// @notice the "_from" account must be frozen
+  /// @notice only the owner can trigger this function
+  /// @notice super.doSend to skip "_from" frozen checking
+  function transferFromFrozenAccount(
+    address _from,
+    address _to,
+    uint256 _amount
+  )
+    public
+    onlyOwner
+    whenNotPaused
+    whenAccountFrozen(_from)
+    whenAccountNotFrozen(_to)
+    whenAccountNotFrozen(msg.sender)
+  {
+    super.doSend(msg.sender, _from, _to, _amount, "", "", true);
+  }
+
   function doSend(
     address _operator,
     address _from,
