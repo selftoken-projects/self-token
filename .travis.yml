@@ -3,15 +3,16 @@ sudo: false
 
 language: node_js
 node_js:
-  - "7"
+  - "iojs"
+  - "10"
 
 install:
+  - npm install -g npm
   - npm install -g truffle
-  - npm install -g truffle-expect
-  - npm install -g truffle-config
   - npm install -g ganache-cli
-  - npm install -g web3
-  - npm i
+  - npm install -g surya
+  - npm install
+
 
 # before_script:
 #   - testrpc > testrpc.log &
