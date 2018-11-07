@@ -31,6 +31,10 @@ contract('SelfToken', function (accounts) {
     await selfToken.mint(buyer3, 100, "");
   });
 
+  it("non-owner should not pause", async function () {
+    await shouldFail.reverting(selfToken.pause({from: buyer1}));
+  });
+
   it("should pause token transfer and approving", async function () {
     // Init: buyer1 approve buyer3: 1 wei (To be tested by transferFrom later)
     await selfToken.approve(buyer3, 1, {
@@ -64,6 +68,10 @@ contract('SelfToken', function (accounts) {
     shouldFail.reverting(selfToken.transferFrom(buyer1, anyone, 1, {
       from: buyer3
     }));
+  });
+
+  it("non-owner should not unpause", async function () {
+    await shouldFail.reverting(selfToken.unpause({from: buyer1}));
   });
 
   it("should unpause token transfer and approving", async function () {
