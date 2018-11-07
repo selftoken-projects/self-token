@@ -10,8 +10,8 @@ install:
   - npm install -g truffle
   - npm install -g ganache-cli
   - npm install -g surya
-  - npm install -g codecov
-  - npm install -g istanbul
+  # - npm install -g codecov
+  # - npm install -g istanbul
   - npm install
 
 
@@ -19,6 +19,6 @@ install:
 #   - testrpc > testrpc.log &
 
 script:
-  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
-  - codecov
+  # - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+  # - codecov
   - ./scripts/test.sh
