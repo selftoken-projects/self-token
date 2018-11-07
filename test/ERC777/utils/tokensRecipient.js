@@ -29,7 +29,6 @@ exports.test = function (web3, accounts, token) {
         arguments: [false]
       }).send({
         from: accounts[4],
-        gas: 300000,
         gasLimit: 4712388
       });
 
