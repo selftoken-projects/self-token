@@ -7,8 +7,7 @@ import { ERC777ERC20TokenWithApproveAndCall } from "./ERC777ERC20TokenWithApprov
 import { ERC777ERC20TokenWithBatchTransfer } from "./ERC777ERC20TokenWithBatchTransfer.sol";
 import { CappedMintableERC777ERC20Token } from "./CappedMintableERC777ERC20Token.sol";
 import { ERC777ERC20TokenWithOperatorApprove } from "./ERC777ERC20TokenWithOperatorApprove.sol";
-import { Claimable } from "openzeppelin-solidity/contracts/ownership/Claimable.sol";
-
+import { Claimable } from "./openzeppelin-solidity/ownership/Claimable.sol";
 
 /// @dev The inheritance order is important.
 contract SelfToken is

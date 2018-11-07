@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
-import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import { Ownable } from "./openzeppelin-solidity/ownership/Ownable.sol";
 
 /// @title Capped Mintable ERC777 ERC20 Token
 /// @author Roger-Wu
