@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
-import { Ownable } from "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
+import { Ownable } from "./openzeppelin-solidity/ownership/Ownable.sol";
+import { Address } from "./openzeppelin-solidity/Address.sol";
 
 /// @title ERC777 ERC20 Token with Official Operators
 /// @author Roger-Wu
@@ -24,7 +24,7 @@ import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
 ///    there is no official operator at all for him. The token holder can still authorize
 ///    any addresses, including which of official operators, to be his operators.
 contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable {
-  using AddressUtils for address;
+  using Address for address;
 
   mapping(address => bool) internal mIsOfficialOperator;
   mapping(address => bool) internal mIsUserNotAcceptingAllOfficialOperators;

@@ -6,7 +6,7 @@ import { ERC777ERC20TokenWithOfficialOperators } from "./ERC777ERC20TokenWithOff
 import { ERC777ERC20TokenWithApproveAndCall } from "./ERC777ERC20TokenWithApproveAndCall.sol";
 import { ERC777ERC20TokenWithBatchTransfer } from "./ERC777ERC20TokenWithBatchTransfer.sol";
 import { CappedMintableERC777ERC20Token } from "./CappedMintableERC777ERC20Token.sol";
-import { Claimable } from "openzeppelin-solidity/contracts/ownership/Claimable.sol";
+import { Claimable } from "./openzeppelin-solidity/ownership/Claimable.sol";
 
 
 /// @dev The inheritance order is important.

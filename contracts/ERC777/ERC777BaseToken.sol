@@ -4,8 +4,8 @@
 pragma solidity 0.4.24;
 
 import { ERC820Client } from "erc820/contracts/ERC820Client.sol";
-import { SafeMath } from "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import { AddressUtils } from "openzeppelin-solidity/contracts/AddressUtils.sol";
+import { SafeMath } from "../openzeppelin-solidity/math/SafeMath.sol";
+import { Address } from "../openzeppelin-solidity/Address.sol";
 import { ERC777Token } from "./ERC777Token.sol";
 import { ERC777TokensSender } from "./ERC777TokensSender.sol";
 import { ERC777TokensRecipient } from "./ERC777TokensRecipient.sol";
@@ -13,7 +13,7 @@ import { ERC777TokensRecipient } from "./ERC777TokensRecipient.sol";
 
 contract ERC777BaseToken is ERC777Token, ERC820Client {
   using SafeMath for uint256;
-  using AddressUtils for address;
+  using Address for address;
 
   string internal mName;
   string internal mSymbol;
