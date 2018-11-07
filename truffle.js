@@ -20,5 +20,11 @@ module.exports = {
       enabled: true,
       runs: 200
     }
-  }
+  },
+  test: {
+    provider: "http://localhost: 9545",
+    network_id: '*',
+    gas: 4500000,
+    gasPrice: 10000000000,
+  },
 };

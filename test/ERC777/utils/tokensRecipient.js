@@ -29,16 +29,18 @@ exports.test = function (web3, accounts, token) {
         arguments: [false]
       }).send({
         from: accounts[4],
+        gas: 500000,
         gasLimit: 4712388
       });
 
       let erc820Registry = utils.getERC820Registry(web3);
       await erc820Registry
         .setInterfaceImplementer(
-          accounts[5],
+          accounts[4],
           web3.utils.keccak256('ERC777TokensRecipient'),
           recipient.options.address, {
-            from: accounts[4]
+            from: accounts[4],
+            gas: 500000
           });
       assert.ok(recipient.options.address);
     });
@@ -69,9 +71,6 @@ exports.test = function (web3, accounts, token) {
           gas: 300000,
           from: accounts[4]
         });
-      console.log(recipient.options.address)
-
-      console.log(await erc820Registry.interfaceAddr(recipient.options.address, "ERC777TokensRecipient"))
 
       await token.contract.methods
         .send(recipient.options.address, web3.utils.toWei('1'), '0x')
