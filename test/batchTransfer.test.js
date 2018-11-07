@@ -113,6 +113,7 @@ contract('SelfToken', function (accounts) {
     //  "Sent", from user1 to recipient2
     //  "Transfer", from user1 to recipient2
     // Here we only care about "Sent" events
+    // operator should be user1 because the msg.sender of the tx is user1
     expectEvent.inLogs(
       receipt.logs,
       "Sent", {
