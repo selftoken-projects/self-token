@@ -305,6 +305,7 @@ contract('SelfToken', function (accounts) {
   })
 
   it("should not be able to unauthorize an authorized official operator when accepting all official operators", async function () {
+    // operator1 is an official operator now
     await shouldFail.reverting(selfToken.revokeOperator(operator1.address, {
       from: user1
     }))
