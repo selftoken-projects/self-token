@@ -1,0 +1,22 @@
+dist: trusty
+sudo: false
+
+language: node_js
+node_js:
+  - "10"
+  - "9"
+  - "8"
+
+install:
+  - npm install -g npm
+  - npm install -g truffle
+  - npm install -g ganache-cli
+  - npm install -g surya
+  - npm install
+
+
+# before_script:
+#   - testrpc > testrpc.log &
+
+script:
+  - ./scripts/test.sh
