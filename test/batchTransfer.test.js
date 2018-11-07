@@ -15,12 +15,13 @@ const should = require('chai')
 let erc820Registry, selfToken;
 
 contract('SelfToken', function (accounts) {
-  const [owner, user1, recipient1, recipient2] = accounts;
+  const [owner, user1, recipient1, recipient2, operator1] = accounts;
   const TRANSFER_AMOUNT_1 = 10;
   const TRANSFER_AMOUNT_2 = 20;
   const ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2;
   const NOT_ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2 - 1;
-  const EXTRA_DATA = "0x5e1f";
+  const USER_DATA = "0x5e1f";
+  const OPERATOR_DATA = "0x07e2";
 
   before(async function () {
     // use web3 1.0.0 instead of truffle's 0.20.6 web3
@@ -33,6 +34,9 @@ contract('SelfToken', function (accounts) {
 
   beforeEach(async function () {
     selfToken = await SelfToken.new({ from: owner });
+
+    // let be operator1 be user1's operator
+    selfToken.authorizeOperator(operator1, { from: user1 });
   });
 
   it("should transfer tokens to multiple recipients in one tx", async function () {
@@ -102,7 +106,7 @@ contract('SelfToken', function (accounts) {
     const receipt = await selfToken.batchSend(
       [recipient1, recipient2],
       [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
-      EXTRA_DATA, {
+      USER_DATA, {
         from: user1,
       }
     );
@@ -121,11 +125,10 @@ contract('SelfToken', function (accounts) {
         from: user1,
         to: recipient1,
         amount: TRANSFER_AMOUNT_1,
-        holderData: EXTRA_DATA,
+        holderData: USER_DATA,
         operatorData: "0x",
       }
     );
-
     expectEvent.inLogs(
       receipt.logs,
       "Sent", {
@@ -133,7 +136,7 @@ contract('SelfToken', function (accounts) {
         from: user1,
         to: recipient2,
         amount: TRANSFER_AMOUNT_2,
-        holderData: EXTRA_DATA,
+        holderData: USER_DATA,
         operatorData: "0x",
       }
     );
@@ -156,8 +159,76 @@ contract('SelfToken', function (accounts) {
       selfToken.batchSend(
         [recipient1, recipient2],
         [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
-        EXTRA_DATA, {
+        USER_DATA, {
           from: user1,
+        }
+      )
+    );
+  });
+
+  // operatorBatchSend
+
+  it("an authorized operator can send a user's tokens to multiple recipients in one tx", async function () {
+    // mint `ENOUGH_AMOUNT` tokens to user 1
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    const receipt = await selfToken.operatorBatchSend(
+      user1,
+      [recipient1, recipient2],
+      [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+      USER_DATA,
+      OPERATOR_DATA, {
+        from: operator1,
+      }
+    );
+
+    expectEvent.inLogs(
+      receipt.logs,
+      "Sent", {
+        operator: operator1,
+        from: user1,
+        to: recipient1,
+        amount: TRANSFER_AMOUNT_1,
+        holderData: USER_DATA,
+        operatorData: OPERATOR_DATA,
+      }
+    );
+    expectEvent.inLogs(
+      receipt.logs,
+      "Sent", {
+        operator: operator1,
+        from: user1,
+        to: recipient2,
+        amount: TRANSFER_AMOUNT_2,
+        holderData: USER_DATA,
+        operatorData: OPERATOR_DATA,
+      }
+    );
+
+    // check the balances
+    (await selfToken.balanceOf(user1)).should.be.bignumber.equal(ENOUGH_AMOUNT - TRANSFER_AMOUNT_1 - TRANSFER_AMOUNT_2);
+    (await selfToken.balanceOf(recipient1)).should.be.bignumber.equal(TRANSFER_AMOUNT_1);
+    (await selfToken.balanceOf(recipient2)).should.be.bignumber.equal(TRANSFER_AMOUNT_2);
+  });
+
+  it("an authorized operator can not send a user's tokens to multiple recipients if the user doesn't have enough tokens", async function () {
+    const NOT_ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2 - 1;
+
+    // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
+    selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
         }
       )
     );
@@ -165,7 +236,7 @@ contract('SelfToken', function (accounts) {
 
   // if the token contract is paused
 
-  it("should not allow user1 to batchTransfer if the token contract is paused", async function () {
+  it("should not allow a user to batchTransfer if the token contract is paused", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.pause({ from: owner });
@@ -182,7 +253,7 @@ contract('SelfToken', function (accounts) {
     );
   });
 
-  it("should not allow user1 to batchSend if the token contract is paused", async function () {
+  it("should not allow a user to batchSend if the token contract is paused", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.pause({ from: owner });
@@ -193,8 +264,27 @@ contract('SelfToken', function (accounts) {
       selfToken.batchSend(
         [recipient1, recipient2],
         [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
-        EXTRA_DATA, {
+        USER_DATA, {
           from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow an operator to operatorBatchSend if the token contract is paused", async function () {
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    selfToken.pause({ from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
         }
       )
     );
@@ -202,7 +292,7 @@ contract('SelfToken', function (accounts) {
 
   // if user1 is frozen
 
-  it("should not allow user1 to batchTransfer if user1 is frozen", async function () {
+  it("should not allow a user to batchTransfer if they are frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.freeze(user1, { from: owner });
@@ -219,7 +309,7 @@ contract('SelfToken', function (accounts) {
     );
   });
 
-  it("should not allow user1 to batchSend if user1 is frozen", async function () {
+  it("should not allow a user to batchSend if they are frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.freeze(user1, { from: owner });
@@ -230,8 +320,48 @@ contract('SelfToken', function (accounts) {
       selfToken.batchSend(
         [recipient1, recipient2],
         [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
-        EXTRA_DATA, {
+        USER_DATA, {
           from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow an operator to operatorBatchSend if the token holder is frozen", async function () {
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    selfToken.freeze(user1, { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
+        }
+      )
+    );
+  });
+
+  // if operator1 is frozen
+
+  it("should not allow an operator to operatorBatchSend if the operator is frozen", async function () {
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    selfToken.freeze(operator1, { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
         }
       )
     );
@@ -239,7 +369,7 @@ contract('SelfToken', function (accounts) {
 
   // if one of the recipients is frozen
 
-  it("should not allow user1 to batchTransfer if one of the recipients is frozen", async function () {
+  it("should not allow a user to batchTransfer if one of the recipients is frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.freeze(recipient2, { from: owner });
@@ -256,7 +386,7 @@ contract('SelfToken', function (accounts) {
     );
   });
 
-  it("should not allow user1 to batchSend if one of the recipients is frozen", async function () {
+  it("should not allow a user to batchSend if one of the recipients is frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
     selfToken.freeze(recipient2, { from: owner });
@@ -267,8 +397,27 @@ contract('SelfToken', function (accounts) {
       selfToken.batchSend(
         [recipient1, recipient2],
         [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
-        EXTRA_DATA, {
+        USER_DATA, {
           from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow an operator to operatorBatchSend if the operator is frozen", async function () {
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    selfToken.freeze(recipient2, { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
         }
       )
     );
