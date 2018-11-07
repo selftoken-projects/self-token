@@ -205,7 +205,6 @@ contract('SelfToken', function (accounts) {
     await selfToken.addOfficialOperator(operator1.address, {
       from: owner
     });
-
     // server update official operator 
     officialOperators.push(operator1.address)
 
@@ -245,7 +244,18 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   });
 
-  it("should be able to authorize other unofficial operator when accept all official operators", async function () {
+  it("can view all authorized operator", async function () {
+    // offchain keep track of a list of official/unofficial operators
+    let operatorSet = new Set();
+
+    // add official operator (they are also authorized by default)
+    await selfToken.addOfficialOperator(operator1.address, {
+      from: owner
+    });
+    operatorSet.add(operator1.address);
+
+    // official operator should be authorized by default
+    assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
 
     // authorize unofficial operators
     await expectEvent.inTransaction(

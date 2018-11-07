@@ -21,6 +21,7 @@ contract SelfToken is
 {
   constructor()
     public
+    // ERC777ERC20BaseToken("SELF Token", "SELF", 1e18, new address[](0))
     ERC777ERC20BaseToken("SELF Token", "SELF", 1, new address[](0))
     CappedMintableERC777ERC20Token(1e9 * 1e18)
   {}
