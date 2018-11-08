@@ -4,7 +4,9 @@
 const chai = require("chai");
 const assert = chai.assert;
 chai.use(require("chai-as-promised")).should();
-const {URL} = require("url");
+const {
+  URL
+} = require("url");
 const EIP820Registry = require("erc820");
 const SelfTokenArtifact = artifacts.require("SelfToken");
 const ERC777BaseTokenArtifact = artifacts.require("ERC777BaseToken");
@@ -13,7 +15,7 @@ let Web3 = require("web3"); // version 1.0.0
 // let _web3 = new _Web3(web3.currentProvider);
 
 let erc820Registry;
-contract("SelfToken", function(accounts) {
+contract("SelfToken", function (accounts) {
   const provider = new URL(this.web3.currentProvider.host);
   provider.protocol = "ws";
   const _web3 = new Web3(provider.toString());
@@ -59,7 +61,7 @@ contract("SelfToken", function(accounts) {
     ]
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     erc820Registry = await EIP820Registry.deploy(_web3, accounts[0]);
     assert.ok(erc820Registry.$address);
     selfToken.erc820Addr = erc820Registry.$address;
@@ -79,7 +81,7 @@ contract("SelfToken", function(accounts) {
     });
     assert.ok(_ERC777BaseToken.contract.options.address);
 
-    selfToken.mintForAccount = async function(account, amount, operator) {
+    selfToken.mintForAccount = async function (account, amount, operator) {
       const mintTx = selfToken.contract.methods.mint(
         account,
         utils.tokenUnit(amount),
@@ -92,7 +94,7 @@ contract("SelfToken", function(accounts) {
       });
     };
 
-    _ERC777BaseToken.mintForAccount = async function(
+    _ERC777BaseToken.mintForAccount = async function (
       account,
       amount,
       operator
@@ -110,28 +112,28 @@ contract("SelfToken", function(accounts) {
     };
   });
 
-  _ERC777BaseToken.disableERC20 = async function() {
+  _ERC777BaseToken.disableERC20 = async function () {
     await _ERC777BaseToken.contract.methods.disableERC20().send({
       gas: 300000,
       from: accounts[0]
     });
   };
 
-  after(async function() {
+  after(async function () {
     await _web3.currentProvider.connection.close();
   });
 
-  describe("Creation", function() {
-    it("should not deploy the ERC777BaseToken with a granularity of 0", async function() {
+  describe("Creation", function () {
+    it("should not deploy the ERC777BaseToken with a granularity of 0", async function () {
       const estimateGas = await deployContractERC777BaseToken.estimateGas();
       await ERC777BaseToken.deploy({
-        arguments: [
-          _ERC777BaseToken.name,
-          _ERC777BaseToken.symbol,
-          "0",
-          _ERC777BaseToken.defaultOperators
-        ]
-      })
+          arguments: [
+            _ERC777BaseToken.name,
+            _ERC777BaseToken.symbol,
+            "0",
+            _ERC777BaseToken.defaultOperators
+          ]
+        })
         .send({
           from: accounts[0],
           gasLimit: estimateGas
@@ -151,32 +153,32 @@ contract("SelfToken", function(accounts) {
   require("./utils/tokensRecipient").test(_web3, accounts, selfToken);
   require("./utils/erc20Compatibility").test(_web3, accounts, selfToken);
 
-  describe("ERC777BaseToken ERC20 Disable", function() {
-    it("should disable ERC20 compatibility", async function() {
-      let erc820Registry = utils.getERC820Registry(_web3);
-      let erc20Hash = _web3.utils.keccak256("ERC20Token");
-      let erc20Addr = await erc820Registry.methods
-        .getInterfaceImplementer(
-          _ERC777BaseToken.contract.options.address,
-          erc20Hash
-        )
-        .call();
+  // describe("ERC777BaseToken ERC20 Disable", function() {
+  //   it("should disable ERC20 compatibility", async function() {
+  //     let erc820Registry = utils.getERC820Registry(_web3);
+  //     let erc20Hash = _web3.utils.keccak256("ERC20Token");
+  //     let erc20Addr = await erc820Registry.methods
+  //       .getInterfaceImplementer(
+  //         _ERC777BaseToken.contract.options.address,
+  //         erc20Hash
+  //       )
+  //       .call();
 
-      assert.strictEqual(erc20Addr, _ERC777BaseToken.contract.options.address);
+  //     assert.strictEqual(erc20Addr, _ERC777BaseToken.contract.options.address);
 
-      await _ERC777BaseToken.disableERC20();
+  //     await _ERC777BaseToken.disableERC20();
 
-      await utils.getBlock(_web3);
-      erc20Addr = await erc820Registry.methods
-        .getInterfaceImplementer(
-          _ERC777BaseToken.contract.options.address,
-          erc20Hash
-        )
-        .call();
+  //     await utils.getBlock(_web3);
+  //     erc20Addr = await erc820Registry.methods
+  //       .getInterfaceImplementer(
+  //         _ERC777BaseToken.contract.options.address,
+  //         erc20Hash
+  //       )
+  //       .call();
 
-      assert.strictEqual(erc20Addr, utils.zeroAddress);
-    });
-  });
+  //     assert.strictEqual(erc20Addr, utils.zeroAddress);
+  //   });
+  // });
 
   // require('./utils/erc20Disabled').test(_web3, accounts, _ERC777BaseToken);
 });
