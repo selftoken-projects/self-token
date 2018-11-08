@@ -11,7 +11,7 @@ const should = require('chai')
 let erc820Registry, selfToken;
 
 contract('SelfToken', function (accounts) {
-  const [owner, user1, user2, user3, operator1] = accounts;
+  const [owner, user1, user2, user3, operator1, anyone] = accounts;
 
   before(async function () {
     // use web3 1.0.0 instead of truffle's 0.20.6 web3
@@ -59,5 +59,22 @@ contract('SelfToken', function (accounts) {
 
     // user3 should have 10 tokens.
     (await selfToken.balanceOf(user3)).should.be.bignumber.equal(10);
+  });
+
+  it("should not allow an address to approve tokens for a token holder if they are not the token holder's operator", async function () {
+    // deploy SelfToken contract
+    selfToken = await SelfToken.new();
+
+    // mint 100 tokens for user1
+    await selfToken.mint(user1, 100, "", {
+      from: owner
+    });
+
+    // operator1 approve user1's 10 tokens to user2
+    await shouldFail.reverting(
+      selfToken.operatorApprove(user1, user2, 10, {
+        from: anyone
+      })
+    );
   });
 });

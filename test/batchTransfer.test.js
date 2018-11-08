@@ -489,4 +489,63 @@ contract('SelfToken', function (accounts) {
       )
     );
   });
+
+  // should revert if the lengths of _recipients and _amounts is different
+
+  it("should not allow a user to batchTransfer if the token contract is paused", async function () {
+    // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.batchTransfer(
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2], {
+          from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow a user to batchSend if the token contract is paused", async function () {
+    // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.batchSend(
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2],
+        USER_DATA, {
+          from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow an operator to operatorBatchSend if the token contract is paused", async function () {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
+        }
+      )
+    );
+  });
 });
