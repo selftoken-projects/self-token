@@ -161,7 +161,10 @@ contract('SelfToken', function (accounts) {
       from: buyer3
     });
 
-    await selfToken.send(buyer2, 1, "0x5e1f", {
+    /// @notice since "send" is reserved, we need to point out which "send"
+    /// are we using.
+    /// @dev can send from buyer1 to buyer2
+    await selfToken.contract.send.sendTransaction(buyer2, 1, "", {
       from: buyer1
     });
   });
