@@ -7,15 +7,10 @@ const ERC820Registry = require('erc820');
 const SelfToken = artifacts.require("SelfToken");
 const BigNumber = web3.BigNumber;
 
-const should = require('chai')
-  .use(require('chai-as-promised'))
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
-
 let erc820Registry, selfToken;
 
 contract('SelfToken', function (accounts) {
-  const [owner, user1, recipient1, recipient2, operator1] = accounts;
+  const [owner, user1, recipient1, recipient2, operator1, anyone] = accounts;
   const TRANSFER_AMOUNT_1 = 10;
   const TRANSFER_AMOUNT_2 = 20;
   const ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2;
@@ -148,8 +143,6 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should not send tokens to multiple recipients if the user doesn't have enough tokens", async function () {
-    const NOT_ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2 - 1;
-
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", { from: owner });
 
@@ -214,8 +207,6 @@ contract('SelfToken', function (accounts) {
   });
 
   it("an authorized operator can not send a user's tokens to multiple recipients if the user doesn't have enough tokens", async function () {
-    const NOT_ENOUGH_AMOUNT = TRANSFER_AMOUNT_1 + TRANSFER_AMOUNT_2 - 1;
-
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
     selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", { from: owner });
 
@@ -229,6 +220,25 @@ contract('SelfToken', function (accounts) {
         USER_DATA,
         OPERATOR_DATA, {
           from: operator1,
+        }
+      )
+    );
+  });
+
+  it("only authorized operator can not send a user's tokens to multiple recipients", async function () {
+    // mint `ENOUGH_AMOUNT` tokens to user 1
+    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: anyone,
         }
       )
     );

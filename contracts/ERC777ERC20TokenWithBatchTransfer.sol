@@ -76,6 +76,7 @@ contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token 
       _recipients.length == _amounts.length,
       "The lengths of _recipients and _amounts should be the same."
     );
+    require(isOperatorFor(msg.sender, _from));
 
     for (uint256 i = 0; i < _recipients.length; i++) {
       doSend(msg.sender, _from, _recipients[i], _amounts[i], _userData, _operatorData, true);
