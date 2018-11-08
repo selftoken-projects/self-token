@@ -160,6 +160,31 @@ contract('SelfToken', function (accounts) {
     await selfToken.transferFrom(buyer1, anyone, 1, {
       from: buyer3
     });
+
+    /// @notice since "send" is reserved, we need to point out which "send"
+    /// are we using.
+    /// @dev can send from buyer1 to buyer2
+    await selfToken.contract.send.sendTransaction(buyer2, 1, "", {
+      from: buyer1
+    });
+  });
+
+  // buyer1 is buyer5's operator already
+  it("should allow operator send and burn", async function () {
+    // buyer 1 can operator send
+    await selfToken.operatorSend(buyer5, buyer2, 1, "", "", { from: buyer1 });
+
+    // buyer 1 can operator burn
+    await selfToken.operatorBurn(buyer5, 1, "", "", { from: buyer1 });
+  });
+
+  // buyer1 is buyer5's operator already
+  it("should not allow non-operator send and burn", async function () {
+    // anyone can not operator send
+    await shouldFail.reverting(selfToken.operatorSend(buyer5, buyer2, 1, "", "", { from: anyone }));
+
+    // anyone can not operator burn
+    await shouldFail.reverting(selfToken.operatorBurn(buyer5, 1, "", "", { from: anyone }));
   });
 
   it("should not allow unfreezing buyer1 again", async function () {
