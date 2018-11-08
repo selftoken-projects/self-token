@@ -13,15 +13,15 @@
  */
 
 module.exports = {
+  // See <http://truffleframework.com/docs/advanced/configuration>
+  // to customize your Truffle configuration!
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
+  },
   networks: {
-    // See <http://truffleframework.com/docs/advanced/configuration>
-    // to customize your Truffle configuration!
-    solc: {
-      optimizer: {
-        enabled: true,
-        runs: 200
-      }
-    },
     coverage: {
       host: "localhost",
       network_id: "*",
