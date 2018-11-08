@@ -19,7 +19,6 @@ contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token 
     for (uint256 i = 0; i < _recipients.length; i++) {
       doSend(msg.sender, msg.sender, _recipients[i], _amounts[i], "", "", false);
     }
-    
     return true;
   }
 
