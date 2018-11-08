@@ -3,7 +3,7 @@
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 pragma solidity 0.4.24;
 
-import { ERC820Client } from "./ERC820/ERC820Client.sol";
+import { ERC820Client } from "erc820/contracts/ERC820Client.sol";
 import { SafeMath } from "../openzeppelin-solidity/math/SafeMath.sol";
 import { Address } from "../openzeppelin-solidity/Address.sol";
 import { ERC777Token } from "./ERC777Token.sol";
