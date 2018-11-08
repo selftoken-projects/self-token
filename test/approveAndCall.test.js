@@ -33,7 +33,7 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should allow the user to pay tokens and buy something in one tx with approveAndCall", async function () {
-    selfToken.mint(user1, price, "", {
+    await selfToken.mint(user1, price, "", {
       from: owner
     });
 
