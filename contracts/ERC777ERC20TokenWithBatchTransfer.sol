@@ -12,12 +12,15 @@ contract ERC777ERC20TokenWithBatchTransfer is PausableFreezableERC777ERC20Token 
     erc20
     whenNotPaused
     whenAccountNotFrozen(msg.sender)
+    returns (bool success)
   {
     require(_recipients.length == _amounts.length, "The lengths of _recipients and _amounts should be the same.");
 
     for (uint256 i = 0; i < _recipients.length; i++) {
       doSend(msg.sender, msg.sender, _recipients[i], _amounts[i], "", "", false);
     }
+    
+    return true;
   }
 
   /// @notice Send tokens to multiple recipients.
