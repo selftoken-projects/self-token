@@ -111,7 +111,7 @@ contract('SelfToken', function (accounts) {
         from: owner
       });
 
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         selfToken.approveAndCall(
           exampleApprovalRecipient.address, price * 2, extraData, {
             from: user1
