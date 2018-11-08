@@ -238,7 +238,7 @@ exports.test = function (web3, accounts, token) {
         await recipient.methods
           .acceptTokens()
           .send({
-            gas: 300000,
+            gas: 3000000,
             from: accounts[4]
           });
 
@@ -266,7 +266,7 @@ exports.test = function (web3, accounts, token) {
         await token.contract.methods
           .send(accounts[4], utils.tokenUnit('4'), '0xbeef')
           .send({
-            gas: 300000,
+            gas: 3000000,
             from: accounts[5]
           });
 
