@@ -225,7 +225,8 @@ exports.test = function (web3, accounts, token) {
             web3.utils.keccak256('ERC777TokensRecipient'),
             recipient.options.address
           ).send({
-            from: accounts[4]
+            from: accounts[4],
+            gas: 3000000
           });
 
         await utils.assertTotalSupply(
