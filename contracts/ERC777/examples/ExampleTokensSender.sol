@@ -5,7 +5,7 @@
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-pragma solidity ^0.4.24;
+pragma solidity 0.4.25;
 
 import { ERC820Client } from "../../ERC820/ERC820Client.sol";
 import { ERC820ImplementerInterface } from "../../ERC820/ERC820ImplementerInterface.sol";

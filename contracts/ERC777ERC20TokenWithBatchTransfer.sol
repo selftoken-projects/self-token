@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.25;
 
 import { PausableFreezableERC777ERC20Token } from "./PausableFreezableERC777ERC20Token.sol";
 
