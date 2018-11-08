@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.24;
 
 import { ERC777ERC20BaseToken } from "./ERC777/ERC777ERC20BaseToken.sol";
 import { Ownable } from "./openzeppelin-solidity/ownership/Ownable.sol";
