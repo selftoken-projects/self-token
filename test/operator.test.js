@@ -340,4 +340,8 @@ contract('SelfToken', function (accounts) {
         })
     );
   })
+
+  it("when not assigned, user is an operator for himself", async function () {
+    assert.equal(await selfToken.isOperatorFor(user1, user1), true);
+  })
 });

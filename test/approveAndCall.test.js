@@ -3,12 +3,6 @@ const expectEvent = require("./helper/expectEvent");
 const ERC820Registry = require('erc820');
 const SelfToken = artifacts.require("SelfToken");
 const ExampleApprovalRecipient = artifacts.require("ExampleApprovalRecipient");
-const BigNumber = web3.BigNumber;
-
-// const should = require('chai')
-//   .use(require('chai-as-promised'))
-//   .use(require('chai-bignumber')(BigNumber))
-//   .should();
 
 let erc820Registry, selfToken, exampleApprovalRecipient;
 
@@ -28,17 +22,25 @@ contract('SelfToken', function (accounts) {
   });
 
   beforeEach(async function () {
-    selfToken = await SelfToken.new({ from: owner });
+    selfToken = await SelfToken.new({
+      from: owner
+    });
     exampleApprovalRecipient = await ExampleApprovalRecipient.new(
-      merchant1, selfToken.address, price, { from: merchant1 }
+      merchant1, selfToken.address, price, {
+        from: merchant1
+      }
     );
   });
 
   it("should allow the user to pay tokens and buy something in one tx with approveAndCall", async function () {
-    selfToken.mint(user1, price, "", { from: owner });
+    selfToken.mint(user1, price, "", {
+      from: owner
+    });
 
     const receipt = await selfToken.approveAndCall(
-      exampleApprovalRecipient.address, price, extraData, { from: user1 }
+      exampleApprovalRecipient.address, price, extraData, {
+        from: user1
+      }
     );
 
     // `SomethingPurchased` event is not visible in receipt.logs
@@ -59,43 +61,61 @@ contract('SelfToken', function (accounts) {
   // beforeEach is still called before every it.
   describe("testing ExampleApprovalRecipient", function () {
     it("approveAndCall should fail if the user didn't approve enough tokens", async function () {
-      selfToken.mint(user1, price, "", { from: owner });
+      selfToken.mint(user1, price, "", {
+        from: owner
+      });
 
       shouldFail.reverting(
         selfToken.approveAndCall(
-          exampleApprovalRecipient.address, price - 1, extraData, { from: user1 }
+          exampleApprovalRecipient.address, price - 1, extraData, {
+            from: user1
+          }
         )
       );
     });
 
     it("approveAndCall should fail if the user didn't have enough tokens", async function () {
-      selfToken.mint(user1, price - 1, "", { from: owner });
+      selfToken.mint(user1, price - 1, "", {
+        from: owner
+      });
 
       shouldFail.reverting(
         selfToken.approveAndCall(
-          exampleApprovalRecipient.address, price, extraData, { from: user1 }
+          exampleApprovalRecipient.address, price, extraData, {
+            from: user1
+          }
         )
       );
     });
 
     it("approveAndCall should fail if the user tries to pay different tokens", async function () {
-      const fakeSelfToken = await SelfToken.new({ from: owner });
-      fakeSelfToken.mint(user1, initialTokenBalance, "", { from: owner });
+      const fakeSelfToken = await SelfToken.new({
+        from: owner
+      });
+      fakeSelfToken.mint(user1, initialTokenBalance, "", {
+        from: owner
+      });
 
       // approve fakeSelfToken and call exampleApprovalRecipient's receiveApproval.
       shouldFail.reverting(
         fakeSelfToken.approveAndCall(
-          exampleApprovalRecipient.address, price, extraData, { from: user1 }
+          exampleApprovalRecipient.address, price, extraData, {
+            from: user1
+          }
         )
       );
     });
 
     it("should only pay tokens equal to the price even if a user approves more tokens", async function () {
-      selfToken.mint(user1, price * 2, "", { from: owner });
+      selfToken.mint(user1, price * 2, "", {
+        from: owner
+      });
 
       expectEvent.inTransaction(
         selfToken.approveAndCall(
-          exampleApprovalRecipient.address, price * 2, extraData, { from: user1 }
+          exampleApprovalRecipient.address, price * 2, extraData, {
+            from: user1
+          }
         ),
         "Transfer", {
           from: user1,
