@@ -3,9 +3,9 @@ const expectEvent = require("./helper/expectEvent");
 const ERC820Registry = require('erc820')
 const SelfToken = artifacts.require("SelfToken");
 const BatchSendOperator = artifacts.require("BatchSendOperator");
-const BigNumber = web3.BigNumber;
-// BigNumber.config({ ERRORS: false });
-const { ether } = require('openzeppelin-solidity/test/helpers/ether');
+const {
+  ether
+} = require('openzeppelin-solidity/test/helpers/ether');
 
 let erc820Registry, selfToken, operator1;
 const AMOUNT_TO_MINT = ether(100);
@@ -36,13 +36,17 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should not allow non-owner to mint", async function () {
-    await shouldFail.reverting(selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: user2}));
+    await shouldFail.reverting(selfToken.mint(user1, AMOUNT_TO_MINT, "", {
+      from: user2
+    }));
   });
 
   it("should allow mint from owner to buyer1", async function () {
     // Minted: owner mints 100 to user1
     await expectEvent.inTransaction(
-      selfToken.mint(user1, AMOUNT_TO_MINT, "", {from: owner}),
+      selfToken.mint(user1, AMOUNT_TO_MINT, "", {
+        from: owner
+      }),
       "Minted", {
         operator: owner,
         to: user1,
@@ -60,7 +64,9 @@ contract('SelfToken', function (accounts) {
 
   // cannot exceed cap
   it("should not allow exceed cap", async function () {
-    await shouldFail.reverting(selfToken.mint(user2, CAP, "", {from: owner}));
+    await shouldFail.reverting(selfToken.mint(user2, CAP, "", {
+      from: owner
+    }));
 
     // total supply == amount to mint == 100
     (await selfToken.totalSupply()).should.be.bignumber.equal(AMOUNT_TO_MINT);
@@ -72,7 +78,9 @@ contract('SelfToken', function (accounts) {
   // mint 0 when trying to mint 0.5
   it("should fail on minting not multiple number (granuarity)", async function () {
     await expectEvent.inTransaction(
-      selfToken.mint(user2, 0.5, "", {from: owner}),
+      selfToken.mint(user2, 0.5, "", {
+        from: owner
+      }),
       "Minted", {
         operator: owner,
         to: user2,
@@ -88,7 +96,9 @@ contract('SelfToken', function (accounts) {
   it("should allow reaching cap", async function () {
     // Step 1: last 1e18 to reach (ether(1))
     await expectEvent.inTransaction(
-      selfToken.mint(user2, CAP - AMOUNT_TO_MINT - ether(1), "", {from: owner}),
+      selfToken.mint(user2, CAP - AMOUNT_TO_MINT - ether(1), "", {
+        from: owner
+      }),
       "Minted", {
         operator: owner,
         to: user2,
@@ -101,7 +111,9 @@ contract('SelfToken', function (accounts) {
 
     // Step 2: do the last 1e18
     await expectEvent.inTransaction(
-      selfToken.mint(user2, ether(1), "", {from: owner}),
+      selfToken.mint(user2, ether(1), "", {
+        from: owner
+      }),
       "Minted", {
         operator: owner,
         to: user2,

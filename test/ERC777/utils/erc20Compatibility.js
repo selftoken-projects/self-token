@@ -112,6 +112,29 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[2], 13);
       });
 
+    it(`should not let ${utils.formatAccount(accounts[3])} ` +
+      `transfer 100 ${token.symbol} ` +
+      `from ${utils.formatAccount(accounts[1])}`, async function () {
+        await utils.assertTotalSupply(web3, token, 10 * accounts.length);
+        await utils.assertBalance(web3, token, accounts[1], 10);
+        await utils.assertBalance(web3, token, accounts[2], 10);
+
+        await token.contract.methods
+          .approve(accounts[3], web3.utils.toWei('100'))
+          .send({
+            gas: 300000,
+            from: accounts[1]
+          });
+
+        await token.contract.methods
+          .transferFrom(accounts[1], accounts[2], web3.utils.toWei('100'))
+          .send({
+            gas: 300000,
+            from: accounts[3]
+          })
+          .should.be.rejectedWith('revert');
+      });
+
     it(`should not let ${utils.formatAccount(accounts[3])} transfer from ` +
       `${utils.formatAccount(accounts[1])} (not approved)`, async function () {
         await utils.assertTotalSupply(web3, token, 10 * accounts.length);
