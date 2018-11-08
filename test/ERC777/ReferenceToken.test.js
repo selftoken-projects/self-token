@@ -69,25 +69,20 @@ contract("SelfToken", function (accounts) {
   require("./utils/erc20Compatibility").test(_web3, accounts, token);
 
 
-
-
-
   // describe("ERC20 Disable", function () {
   //   it("should disable ERC20 compatibility", async function () {
   //     let erc820Registry = utils.getERC820Registry(_web3);
   //     let erc20Hash = _web3.utils.keccak256("ERC20selfToken");
-  //     let erc20Addr = await erc820Registry.methods
-  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash)
-  //       .call();
+  //     let erc20Addr = await erc820Registry
+  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash);
 
   //     assert.strictEqual(erc20Addr, token.contract.options.address);
 
   //     await token.disableERC20();
 
   //     await utils.getBlock(_web3);
-  //     erc20Addr = await erc820Registry.methods
-  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash)
-  //       .call();
+  //     erc20Addr = await erc820Registry
+  //       .getInterfaceImplementer(token.contract.options.address, erc20Hash);
 
   //     assert.strictEqual(
   //       erc20Addr,
