@@ -25,22 +25,25 @@ exports.test = function (web3, accounts, token) {
         const granularity = (
           await token.contract.methods.granularity().call()).toString();
         assert.strictEqual(
-          granularity,
+          utils.tokenUnit(granularity),
           token.granularity
         );
       }
     );
 
-    it(`should have a total supply of ${token.totalSupply}`,
+    it(`should have a total supply of ${token.initialSupply}`,
       async function () {
-        await utils.assertTotalSupply(web3, token, token.totalSupply);
+        await utils.assertTotalSupply(web3, token, token.initialSupply);
       }
     );
 
     it(`should have a balance of ${token.defaultBalance} for all accounts`,
       async function () {
         for (let acc in balances) {
-          await utils.assertBalance(web3, token, acc, balances[acc]);
+          let balance = acc === accounts[0] ?
+            token.initialSupply + balances[acc] :
+            balances[acc];
+          await utils.assertBalance(web3, token, acc, balance);
         }
       }
     );

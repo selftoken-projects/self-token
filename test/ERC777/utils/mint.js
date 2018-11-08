@@ -11,8 +11,27 @@ exports.test = function (web3, accounts, token) {
       async function () {
         await utils.assertBalance(web3, token, accounts[1], 0);
 
+        let eventsCalled = utils.assertEventsWillBeCalled(
+          token.contract, [{
+            name: 'Minted',
+            data: {
+              operator: web3.utils.toChecksumAddress(accounts[0]),
+              to: web3.utils.toChecksumAddress(accounts[1]),
+              amount: utils.tokenUnit('10'),
+              operatorData: null,
+            },
+          }, {
+            name: 'Transfer',
+            data: {
+              from: utils.zeroAddress,
+              to: web3.utils.toChecksumAddress(accounts[1]),
+              amount: utils.tokenUnit('10'),
+            },
+          }]
+        );
+
         await token.contract.methods
-          .mint(accounts[1], web3.utils.toWei('10'), '0x')
+          .mint(accounts[1], utils.tokenUnit('10'), '0x')
           .send({
             gas: 300000,
             from: accounts[0]
@@ -20,19 +39,30 @@ exports.test = function (web3, accounts, token) {
 
         await utils.getBlock(web3);
 
-        await utils.assertTotalSupply(web3, token, 10);
+        await utils.assertTotalSupply(web3, token, token.initialSupply + 10);
         await utils.assertBalance(web3, token, accounts[1], 10);
+        await eventsCalled;
       }
     );
 
     // it(`should mint 10 ${token.symbol} for ` +
-    //   `${utils.formatAccount(accounts[1])} (ERC20 disabled)`, async function () {
+    //   `${utils.formatAccount(accounts[1])} ` +
+    //   '(ERC20 Disabled)', async function () {
     //     await utils.assertBalance(web3, token, accounts[1], 0);
 
-    //     await token.disableERC20();
+    //     let eventCalled = utils.assertEventWillBeCalled(
+    //       token.contract, 'Minted', {
+    //         operator: web3.utils.toChecksumAddress(accounts[0]),
+    //         to: web3.utils.toChecksumAddress(accounts[1]),
+    //         amount: utils.tokenUnit('10'),
+    //         operatorData: null,
+    //       }
+    //     );
+
+    //     // await token.disableERC20();
 
     //     await token.contract.methods
-    //       .mint(accounts[1], web3.utils.toWei('10'), '0x')
+    //       .mint(accounts[1], utils.tokenUnit('10'), '0x')
     //       .send({
     //         gas: 300000,
     //         from: accounts[0]
@@ -40,9 +70,9 @@ exports.test = function (web3, accounts, token) {
 
     //     await utils.getBlock(web3);
 
-    //     // TODO check events
-    //     await utils.assertTotalSupply(web3, token, 10);
+    //     await utils.assertTotalSupply(web3, token, token.initialSupply + 10);
     //     await utils.assertBalance(web3, token, accounts[1], 10);
+    //     await eventCalled;
     //   });
 
     it(`should not mint -10 ${token.symbol} (negative amount)`,
@@ -50,7 +80,7 @@ exports.test = function (web3, accounts, token) {
         await utils.assertBalance(web3, token, accounts[1], 0);
 
         await token.contract.methods
-          .mint(accounts[1], web3.utils.toWei('-10'), '0x')
+          .mint(accounts[1], utils.tokenUnit('-10'), '0x')
           .send({
             gas: 300000,
             from: accounts[0]
@@ -59,11 +89,10 @@ exports.test = function (web3, accounts, token) {
 
         await utils.getBlock(web3);
 
-        await utils.assertTotalSupply(web3, token, 0);
+        await utils.assertTotalSupply(web3, token, token.initialSupply);
         await utils.assertBalance(web3, token, accounts[1], 0);
       }
     );
-
 
   });
 };
