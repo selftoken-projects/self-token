@@ -123,24 +123,6 @@ contract("SelfToken", function (accounts) {
     await _web3.currentProvider.connection.close();
   });
 
-  describe("Creation", function () {
-    it("should not deploy the ERC777BaseToken with a granularity of 0", async function () {
-      const estimateGas = await deployContractERC777BaseToken.estimateGas();
-      await ERC777BaseToken.deploy({
-          arguments: [
-            _ERC777BaseToken.name,
-            _ERC777BaseToken.symbol,
-            "0",
-            _ERC777BaseToken.defaultOperators
-          ]
-        })
-        .send({
-          from: accounts[0],
-          gasLimit: estimateGas
-        })
-        .should.be.rejectedWith("revert");
-    });
-  });
 
   require("./utils/attributes").test(_web3, accounts, selfToken);
   require("./utils/mint").test(_web3, accounts, selfToken);
