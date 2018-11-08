@@ -26,7 +26,7 @@ function addAuthorizedOperators(authorizedOperators, user) {
         logs.forEach(log => {
           authorizedOperators.push(log.args.operator);
 
-          // resolve promise on last processed item 
+          // resolve promise on last processed item
           itemsProcessed++;
           if (itemsProcessed === logs.length) {
             resolve(authorizedOperators);
@@ -56,7 +56,7 @@ function removeRevokedOperators(authorizedOperators, user) {
           if (indexOfElementToRemove > -1) {
             authorizedOperators.splice(indexOfElementToRemove, 1);
           }
-          // resolve promise on last processed item 
+          // resolve promise on last processed item
           itemsProcessed++;
           if (itemsProcessed === logs.length) {
             resolve(authorizedOperators);
@@ -80,7 +80,7 @@ function addOfficialOperators(officialOperators, authorizedOperators, user) {
             authorizedOperators.push(officialOperator);
           }
 
-          // resolve promise on last processed item 
+          // resolve promise on last processed item
           itemsProcessed++;
           if (itemsProcessed === officialOperators.length) {
             resolve(authorizedOperators);
@@ -144,9 +144,29 @@ contract('SelfToken', function (accounts) {
   })
 
   it("should only allow the owner to add an official operator", async function () {
-    shouldFail.reverting(selfToken.addOfficialOperator(operator1.address, {
+    await shouldFail.reverting(selfToken.addOfficialOperator(operator1.address, {
       from: anyone
     }));
+  });
+
+  it("should not allow the owner to add the same official operator twice", async function () {
+    await selfToken.addOfficialOperator(operator1.address, {
+      from: owner
+    });
+
+    await shouldFail.reverting(
+      selfToken.addOfficialOperator(operator1.address, {
+        from: owner
+      })
+    );
+  });
+
+  it("should not allow the owner to removeOfficialOperator if the address is not an official operator", async function () {
+    await shouldFail.reverting(
+      selfToken.removeOfficialOperator(operator1.address, {
+        from: owner
+      })
+    );
   });
 
   // note: add offical operator != authorize official operator
@@ -233,6 +253,27 @@ contract('SelfToken', function (accounts) {
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
   });
 
+  it("should not be able to accept all official operators again if already accepted", async function () {
+    await shouldFail.reverting(
+      selfToken.acceptAllOfficialOperators({
+        from: user1
+      })
+    );
+  });
+
+  it("should not be able to reject all official operators again if already rejected", async function () {
+    await selfToken.rejectAllOfficialOperators({
+      from: user1
+    });
+
+    await shouldFail.reverting(
+      selfToken.rejectAllOfficialOperators({
+        from: user1
+      })
+    );
+  });
+
+
   it("should be able to authorize other unofficial operator when accept all official operators", async function () {
 
     // authorize unofficial operators
@@ -271,7 +312,7 @@ contract('SelfToken', function (accounts) {
 
 
 
-    // should have two authorized operators 
+    // should have two authorized operators
     assert.equal(await selfToken.isOperatorFor(operator1.address, user1), true);
     assert.equal(await selfToken.isOperatorFor(operator2.address, user1), true);
     // sort before comparing arrays to ignore order of array elements

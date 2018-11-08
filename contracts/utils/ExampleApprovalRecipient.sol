@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import { ERC20 } from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import { ERC20 } from "../openzeppelin-solidity/token/ERC20/ERC20.sol";
 
 contract ExampleApprovalRecipient {
   address public beneficiary;

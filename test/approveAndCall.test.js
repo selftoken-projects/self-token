@@ -33,7 +33,7 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should allow the user to pay tokens and buy something in one tx with approveAndCall", async function () {
-    selfToken.mint(user1, price, "", {
+    await selfToken.mint(user1, price, "", {
       from: owner
     });
 
@@ -61,7 +61,7 @@ contract('SelfToken', function (accounts) {
   // beforeEach is still called before every it.
   describe("testing ExampleApprovalRecipient", function () {
     it("approveAndCall should fail if the user didn't approve enough tokens", async function () {
-      selfToken.mint(user1, price, "", {
+      await selfToken.mint(user1, price, "", {
         from: owner
       });
 
@@ -75,7 +75,7 @@ contract('SelfToken', function (accounts) {
     });
 
     it("approveAndCall should fail if the user didn't have enough tokens", async function () {
-      selfToken.mint(user1, price - 1, "", {
+      await selfToken.mint(user1, price - 1, "", {
         from: owner
       });
 
@@ -92,7 +92,7 @@ contract('SelfToken', function (accounts) {
       const fakeSelfToken = await SelfToken.new({
         from: owner
       });
-      fakeSelfToken.mint(user1, initialTokenBalance, "", {
+      await fakeSelfToken.mint(user1, initialTokenBalance, "", {
         from: owner
       });
 
@@ -107,11 +107,11 @@ contract('SelfToken', function (accounts) {
     });
 
     it("should only pay tokens equal to the price even if a user approves more tokens", async function () {
-      selfToken.mint(user1, price * 2, "", {
+      await selfToken.mint(user1, price * 2, "", {
         from: owner
       });
 
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         selfToken.approveAndCall(
           exampleApprovalRecipient.address, price * 2, extraData, {
             from: user1

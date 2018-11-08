@@ -32,12 +32,14 @@ contract('SelfToken', function (accounts) {
     });
 
     // let operator1 be user1's operator
-    selfToken.authorizeOperator(operator1, { from: user1 });
+    selfToken.authorizeOperator(operator1, {
+      from: user1
+    });
   });
 
   it("should transfer tokens to multiple recipients in one tx", async function () {
     // mint `ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
 
@@ -99,7 +101,7 @@ contract('SelfToken', function (accounts) {
 
   it("should send tokens to multiple recipients in one tx", async function () {
     // mint `ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
 
@@ -151,7 +153,7 @@ contract('SelfToken', function (accounts) {
 
   it("should not send tokens to multiple recipients if the user doesn't have enough tokens", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", {
       from: owner
     });
 
@@ -172,7 +174,9 @@ contract('SelfToken', function (accounts) {
 
   it("an authorized operator can send a user's tokens to multiple recipients in one tx", async function () {
     // mint `ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -217,7 +221,9 @@ contract('SelfToken', function (accounts) {
 
   it("an authorized operator can not send a user's tokens to multiple recipients if the user doesn't have enough tokens", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", { from: owner });
+    await selfToken.mint(user1, NOT_ENOUGH_AMOUNT, "", {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -236,7 +242,9 @@ contract('SelfToken', function (accounts) {
 
   it("only authorized operator can not send a user's tokens to multiple recipients", async function () {
     // mint `ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -257,10 +265,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchTransfer if the token contract is paused", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.pause({
+    await selfToken.pause({
       from: owner
     });
 
@@ -278,10 +286,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchSend if the token contract is paused", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.pause({
+    await selfToken.pause({
       from: owner
     });
 
@@ -299,8 +307,12 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should not allow an operator to operatorBatchSend if the token contract is paused", async function () {
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
-    selfToken.pause({ from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+    await selfToken.pause({
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -321,10 +333,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchTransfer if they are frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.freeze(user1, {
+    await selfToken.freeze(user1, {
       from: owner
     });
 
@@ -342,10 +354,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchSend if they are frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.freeze(user1, {
+    await selfToken.freeze(user1, {
       from: owner
     });
 
@@ -363,8 +375,12 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should not allow an operator to operatorBatchSend if the token holder is frozen", async function () {
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
-    selfToken.freeze(user1, { from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+    await selfToken.freeze(user1, {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -384,8 +400,12 @@ contract('SelfToken', function (accounts) {
   // if operator1 is frozen
 
   it("should not allow an operator to operatorBatchSend if the operator is frozen", async function () {
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
-    selfToken.freeze(operator1, { from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+    await selfToken.freeze(operator1, {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -406,10 +426,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchTransfer if one of the recipients is frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.freeze(recipient2, {
+    await selfToken.freeze(recipient2, {
       from: owner
     });
 
@@ -427,10 +447,10 @@ contract('SelfToken', function (accounts) {
 
   it("should not allow a user to batchSend if one of the recipients is frozen", async function () {
     // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
       from: owner
     });
-    selfToken.freeze(recipient2, {
+    await selfToken.freeze(recipient2, {
       from: owner
     });
 
@@ -448,8 +468,12 @@ contract('SelfToken', function (accounts) {
   });
 
   it("should not allow an operator to operatorBatchSend if the operator is frozen", async function () {
-    selfToken.mint(user1, ENOUGH_AMOUNT, "", { from: owner });
-    selfToken.freeze(recipient2, { from: owner });
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+    await selfToken.freeze(recipient2, {
+      from: owner
+    });
 
     // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
     // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
@@ -458,6 +482,65 @@ contract('SelfToken', function (accounts) {
         user1,
         [recipient1, recipient2],
         [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2],
+        USER_DATA,
+        OPERATOR_DATA, {
+          from: operator1,
+        }
+      )
+    );
+  });
+
+  // should revert if the lengths of _recipients and _amounts is different
+
+  it("should not allow a user to batchTransfer if the token contract is paused", async function () {
+    // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.batchTransfer(
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2], {
+          from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow a user to batchSend if the token contract is paused", async function () {
+    // mint `NOT_ENOUGH_AMOUNT` tokens to user 1
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.batchSend(
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2],
+        USER_DATA, {
+          from: user1,
+        }
+      )
+    );
+  });
+
+  it("should not allow an operator to operatorBatchSend if the token contract is paused", async function () {
+    await selfToken.mint(user1, ENOUGH_AMOUNT, "", {
+      from: owner
+    });
+
+    // transfer `TRANSFER_AMOUNT_1` tokens to `recipient1`
+    // transfer `TRANSFER_AMOUNT_2` tokens to `recipient2`
+    await shouldFail.reverting(
+      selfToken.operatorBatchSend(
+        user1,
+        [recipient1, recipient2],
+        [TRANSFER_AMOUNT_1, TRANSFER_AMOUNT_2, TRANSFER_AMOUNT_2],
         USER_DATA,
         OPERATOR_DATA, {
           from: operator1,
