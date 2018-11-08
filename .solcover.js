@@ -4,5 +4,5 @@ module.exports = {
   norpc: true, // true if we want to launch our own testrpc instance 
   // dir: './secretDirectory',
   // copyPackages: ['zeppelin-solidity'],
-  // skipFiles: ['Routers/EtherRouter.sol']
+  skipFiles: ['contracts/operators/BatchSendOperator.sol'] //
 };
