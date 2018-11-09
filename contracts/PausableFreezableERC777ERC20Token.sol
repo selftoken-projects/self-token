@@ -96,7 +96,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     address _to,
     uint256 _amount
   )
-    public
+    external
     onlyOwner
     whenNotPaused
     whenAccountFrozen(_from)

@@ -15,7 +15,7 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
   }
 
   /// @return the cap of total supply
-  function totalSupplyCap() public view returns(uint _totalSupplyCap) {
+  function totalSupplyCap() external view returns(uint _totalSupplyCap) {
     return mTotalSupplyCap;
   }
 
@@ -25,7 +25,7 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
   /// @param _tokenHolder The address that will be assigned the new tokens
   /// @param _amount The quantity of tokens generated
   /// @param _operatorData Data that will be passed to the recipient as a first transfer
-  function mint(address _tokenHolder, uint256 _amount, bytes _operatorData) public onlyOwner {
+  function mint(address _tokenHolder, uint256 _amount, bytes _operatorData) external onlyOwner {
     requireMultiple(_amount);
     require(mTotalSupply.add(_amount) <= mTotalSupplyCap);
 

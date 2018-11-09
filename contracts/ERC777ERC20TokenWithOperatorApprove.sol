@@ -11,7 +11,7 @@ contract ERC777ERC20TokenWithOperatorApprove is ERC777ERC20BaseToken {
     address _spender,
     uint256 _amount
   )
-    public
+    external
     erc20
     returns (bool success)
   {
