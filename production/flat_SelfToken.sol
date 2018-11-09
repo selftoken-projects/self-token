@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.4.2;
 
 // File: contracts/ERC777/ERC20Token.sol
 
