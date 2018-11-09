@@ -325,13 +325,13 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   }
 
   /// @return the name of the token
-  function name() public view returns (string) { return mName; }
+  function name() external view returns (string) { return mName; }
 
   /// @return the symbol of the token
-  function symbol() public view returns (string) { return mSymbol; }
+  function symbol() external view returns (string) { return mSymbol; }
 
   /// @return the granularity of the token
-  function granularity() public view returns (uint256) { return mGranularity; }
+  function granularity() external view returns (uint256) { return mGranularity; }
 
   /// @return the total supply of the token
   function totalSupply() public view returns (uint256) { return mTotalSupply; }
@@ -343,11 +343,11 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 
   /// @notice Return the list of default operators
   /// @return the list of all the default operators
-  function defaultOperators() public view returns (address[]) { return mDefaultOperators; }
+  function defaultOperators() external view returns (address[]) { return mDefaultOperators; }
 
   /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens. An operator cannot be reauthorized
   /// @param _operator The operator that wants to be Authorized
-  function authorizeOperator(address _operator) public {
+  function authorizeOperator(address _operator) external {
     require(_operator != msg.sender);
     require(!mAuthorized[_operator][msg.sender]);
 
@@ -361,7 +361,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 
   /// @notice Revoke a third party `_operator`'s rights to manage (send) `msg.sender`'s tokens.
   /// @param _operator The operator that wants to be Revoked
-  function revokeOperator(address _operator) public {
+  function revokeOperator(address _operator) external {
     require(_operator != msg.sender);
     require(mAuthorized[_operator][msg.sender]);
 
@@ -545,7 +545,7 @@ contract ERC777ERC20BaseToken is ERC20Token, ERC777BaseToken {
 
   /// @notice For Backwards compatibility
   /// @return The decimls of the token. Forced to 18 in ERC777.
-  function decimals() public erc20 view returns (uint8) { return uint8(18); }
+  function decimals() external erc20 view returns (uint8) { return uint8(18); }
 
   /// @notice ERC20 backwards compatible transfer.
   /// @param _to The address of the recipient
@@ -764,7 +764,7 @@ contract Freezable is Ownable {
    * @dev Function to freeze an account from transactions
    */
   function freeze(address _account)
-    public
+    external
     onlyOwner
     whenAccountNotFrozen(_account)
     returns (bool)
@@ -778,7 +778,7 @@ contract Freezable is Ownable {
    * @dev Function to unfreeze an account form frozen state
    */
   function unfreeze(address _account)
-    public
+    external
     onlyOwner
     whenAccountFrozen(_account)
     returns (bool)
@@ -793,7 +793,7 @@ contract Freezable is Ownable {
    * @dev A user can choose to freeze her account (not unfreezable)
    */
   function freezeMyAccount()
-    public
+    external
     whenAccountNotFrozen(msg.sender)
     returns (bool)
   {
@@ -899,7 +899,7 @@ contract PausableFreezableERC777ERC20Token is ERC777ERC20BaseToken, Pausable, Fr
     address _to,
     uint256 _amount
   )
-    public
+    external
     onlyOwner
     whenNotPaused
     whenAccountFrozen(_from)
@@ -974,7 +974,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   /// @notice Add an address into the list of official operators.
   /// @param _operator The address of a new official operator.
   /// An official operator must be a contract.
-  function addOfficialOperator(address _operator) public onlyOwner {
+  function addOfficialOperator(address _operator) external onlyOwner {
     require(_operator.isContract(), "An official operator must be a contract.");
     require(!mIsOfficialOperator[_operator], "_operator is already an official operator.");
 
@@ -984,7 +984,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
 
   /// @notice Delete an address from the list of official operators.
   /// @param _operator The address of an official operator.
-  function removeOfficialOperator(address _operator) public onlyOwner {
+  function removeOfficialOperator(address _operator) external onlyOwner {
     require(mIsOfficialOperator[_operator], "_operator is not an official operator.");
 
     mIsOfficialOperator[_operator] = false;
@@ -992,7 +992,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
-  function rejectAllOfficialOperators() public {
+  function rejectAllOfficialOperators() external {
     require(!mIsUserNotAcceptingAllOfficialOperators[msg.sender], "Official operators are already rejected by msg.sender.");
 
     mIsUserNotAcceptingAllOfficialOperators[msg.sender] = true;
@@ -1000,7 +1000,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Authorize all official operators to manage `msg.sender`'s tokens.
-  function acceptAllOfficialOperators() public {
+  function acceptAllOfficialOperators() external {
     require(mIsUserNotAcceptingAllOfficialOperators[msg.sender], "Official operators are already accepted by msg.sender.");
 
     mIsUserNotAcceptingAllOfficialOperators[msg.sender] = false;
@@ -1008,12 +1008,12 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @return true if the address is an official operator, false if not.
-  function isOfficialOperator(address _operator) public view returns(bool) {
+  function isOfficialOperator(address _operator) external view returns(bool) {
     return mIsOfficialOperator[_operator];
   }
 
   /// @return true if a user is accepting all official operators, false if not.
-  function isUserAcceptingAllOfficialOperators(address _user) public view returns(bool) {
+  function isUserAcceptingAllOfficialOperators(address _user) external view returns(bool) {
     return !mIsUserNotAcceptingAllOfficialOperators[_user];
   }
 
@@ -1052,7 +1052,7 @@ contract ERC777ERC20TokenWithApproveAndCall is PausableFreezableERC777ERC20Token
   /// @param _value the max amount they can spend
   /// @param _extraData some extra information to send to the approved contract
   function approveAndCall(address _spender, uint256 _value, bytes _extraData)
-    public
+    external
     whenNotPaused
     whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_spender)
@@ -1164,7 +1164,7 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
   }
 
   /// @return the cap of total supply
-  function totalSupplyCap() public view returns(uint _totalSupplyCap) {
+  function totalSupplyCap() external view returns(uint _totalSupplyCap) {
     return mTotalSupplyCap;
   }
 
@@ -1174,7 +1174,7 @@ contract CappedMintableERC777ERC20Token is ERC777ERC20BaseToken, Ownable {
   /// @param _tokenHolder The address that will be assigned the new tokens
   /// @param _amount The quantity of tokens generated
   /// @param _operatorData Data that will be passed to the recipient as a first transfer
-  function mint(address _tokenHolder, uint256 _amount, bytes _operatorData) public onlyOwner {
+  function mint(address _tokenHolder, uint256 _amount, bytes _operatorData) external onlyOwner {
     requireMultiple(_amount);
     require(mTotalSupply.add(_amount) <= mTotalSupplyCap);
 
@@ -1201,7 +1201,7 @@ contract ERC777ERC20TokenWithOperatorApprove is ERC777ERC20BaseToken {
     address _spender,
     uint256 _amount
   )
-    public
+    external
     erc20
     returns (bool success)
   {
