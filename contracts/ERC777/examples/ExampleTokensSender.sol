@@ -58,7 +58,6 @@ contract ExampleTokensSender is ERC820Client, ERC820ImplementerInterface, ERC777
 
     function rejectTokensToSend() public onlyOwner { allowTokensToSend = false; }
 
-    // solhint-disable-next-line no-unused-vars
     function canImplementInterfaceForAddress(address addr, bytes32 interfaceHash) public view returns(bytes32) {
         return ERC820_ACCEPT_MAGIC;
     }

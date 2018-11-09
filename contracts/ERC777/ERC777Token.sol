@@ -5,7 +5,6 @@
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 pragma solidity 0.4.24;
 
 
@@ -34,7 +33,7 @@ interface ERC777Token {
     uint256 amount,
     bytes holderData,
     bytes operatorData
-  ); // solhint-disable-next-line separate-by-one-line-in-contract
+  );
   event Minted(address indexed operator, address indexed to, uint256 amount, bytes operatorData);
   event Burned(address indexed operator, address indexed from, uint256 amount, bytes holderData, bytes operatorData);
   event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
