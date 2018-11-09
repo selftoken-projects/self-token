@@ -9,7 +9,6 @@ pragma solidity 0.4.24;
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 
 
 interface ERC20Token {
@@ -23,7 +22,6 @@ interface ERC20Token {
   function approve(address spender, uint256 amount) external returns (bool);
   function allowance(address owner, address spender) external view returns (uint256);
 
-  // solhint-disable-next-line no-simple-event-func-name
   event Transfer(address indexed from, address indexed to, uint256 amount);
   event Approval(address indexed owner, address indexed spender, uint256 amount);
 }
@@ -161,7 +159,6 @@ library Address {
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 
 
 interface ERC777Token {
@@ -189,7 +186,7 @@ interface ERC777Token {
     uint256 amount,
     bytes holderData,
     bytes operatorData
-  ); // solhint-disable-next-line separate-by-one-line-in-contract
+  );
   event Minted(address indexed operator, address indexed to, uint256 amount, bytes operatorData);
   event Burned(address indexed operator, address indexed from, uint256 amount, bytes holderData, bytes operatorData);
   event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
@@ -205,7 +202,6 @@ interface ERC777Token {
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 
 
 interface ERC777TokensSender {
@@ -228,7 +224,6 @@ interface ERC777TokensSender {
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 
 
 interface ERC777TokensRecipient {
