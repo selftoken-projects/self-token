@@ -10,7 +10,7 @@ import { ERC777ERC20TokenWithOperatorApprove } from "./ERC777ERC20TokenWithOpera
 import { Claimable } from "./openzeppelin-solidity/ownership/Claimable.sol";
 
 /// @dev The inheritance order is important.
-contract SelfToken is
+contract unflattenedSelfToken is
   ERC777ERC20BaseToken,
   PausableFreezableERC777ERC20Token,
   ERC777ERC20TokenWithOfficialOperators,
