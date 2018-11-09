@@ -5,7 +5,6 @@
  * This code has not been reviewed.
  * Do not use or deploy this code before reviewing it personally first.
  */
-// solhint-disable-next-line compiler-fixed
 pragma solidity 0.4.24;
 
 
@@ -20,7 +19,6 @@ interface ERC20Token {
   function approve(address spender, uint256 amount) external returns (bool);
   function allowance(address owner, address spender) external view returns (uint256);
 
-  // solhint-disable-next-line no-simple-event-func-name
   event Transfer(address indexed from, address indexed to, uint256 amount);
   event Approval(address indexed owner, address indexed spender, uint256 amount);
 }

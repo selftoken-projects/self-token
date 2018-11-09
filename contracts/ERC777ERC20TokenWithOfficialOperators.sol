@@ -37,7 +37,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   /// @notice Add an address into the list of official operators.
   /// @param _operator The address of a new official operator.
   /// An official operator must be a contract.
-  function addOfficialOperator(address _operator) public onlyOwner {
+  function addOfficialOperator(address _operator) external onlyOwner {
     require(_operator.isContract(), "An official operator must be a contract.");
     require(!mIsOfficialOperator[_operator], "_operator is already an official operator.");
 
@@ -47,7 +47,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
 
   /// @notice Delete an address from the list of official operators.
   /// @param _operator The address of an official operator.
-  function removeOfficialOperator(address _operator) public onlyOwner {
+  function removeOfficialOperator(address _operator) external onlyOwner {
     require(mIsOfficialOperator[_operator], "_operator is not an official operator.");
 
     mIsOfficialOperator[_operator] = false;
@@ -55,7 +55,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Unauthorize all official operators to manage `msg.sender`'s tokens.
-  function rejectAllOfficialOperators() public {
+  function rejectAllOfficialOperators() external {
     require(!mIsUserNotAcceptingAllOfficialOperators[msg.sender], "Official operators are already rejected by msg.sender.");
 
     mIsUserNotAcceptingAllOfficialOperators[msg.sender] = true;
@@ -63,7 +63,7 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @notice Authorize all official operators to manage `msg.sender`'s tokens.
-  function acceptAllOfficialOperators() public {
+  function acceptAllOfficialOperators() external {
     require(mIsUserNotAcceptingAllOfficialOperators[msg.sender], "Official operators are already accepted by msg.sender.");
 
     mIsUserNotAcceptingAllOfficialOperators[msg.sender] = false;
@@ -71,12 +71,12 @@ contract ERC777ERC20TokenWithOfficialOperators is ERC777ERC20BaseToken, Ownable 
   }
 
   /// @return true if the address is an official operator, false if not.
-  function isOfficialOperator(address _operator) public view returns(bool) {
+  function isOfficialOperator(address _operator) external view returns(bool) {
     return mIsOfficialOperator[_operator];
   }
 
   /// @return true if a user is accepting all official operators, false if not.
-  function isUserAcceptingAllOfficialOperators(address _user) public view returns(bool) {
+  function isUserAcceptingAllOfficialOperators(address _user) external view returns(bool) {
     return !mIsUserNotAcceptingAllOfficialOperators[_user];
   }
 

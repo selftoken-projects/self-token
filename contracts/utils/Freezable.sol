@@ -36,7 +36,7 @@ contract Freezable is Ownable {
    * @dev Function to freeze an account from transactions
    */
   function freeze(address _account)
-    public
+    external
     onlyOwner
     whenAccountNotFrozen(_account)
     returns (bool)
@@ -50,7 +50,7 @@ contract Freezable is Ownable {
    * @dev Function to unfreeze an account form frozen state
    */
   function unfreeze(address _account)
-    public
+    external
     onlyOwner
     whenAccountFrozen(_account)
     returns (bool)
@@ -65,7 +65,7 @@ contract Freezable is Ownable {
    * @dev A user can choose to freeze her account (not unfreezable)
    */
   function freezeMyAccount()
-    public
+    external
     whenAccountNotFrozen(msg.sender)
     returns (bool)
   {

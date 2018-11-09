@@ -11,7 +11,7 @@ contract ERC777ERC20TokenWithApproveAndCall is PausableFreezableERC777ERC20Token
   /// @param _value the max amount they can spend
   /// @param _extraData some extra information to send to the approved contract
   function approveAndCall(address _spender, uint256 _value, bytes _extraData)
-    public
+    external
     whenNotPaused
     whenAccountNotFrozen(msg.sender)
     whenAccountNotFrozen(_spender)

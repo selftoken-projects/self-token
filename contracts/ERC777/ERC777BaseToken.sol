@@ -86,13 +86,13 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
   }
 
   /// @return the name of the token
-  function name() public view returns (string) { return mName; }
+  function name() external view returns (string) { return mName; }
 
   /// @return the symbol of the token
-  function symbol() public view returns (string) { return mSymbol; }
+  function symbol() external view returns (string) { return mSymbol; }
 
   /// @return the granularity of the token
-  function granularity() public view returns (uint256) { return mGranularity; }
+  function granularity() external view returns (uint256) { return mGranularity; }
 
   /// @return the total supply of the token
   function totalSupply() public view returns (uint256) { return mTotalSupply; }
@@ -104,11 +104,11 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 
   /// @notice Return the list of default operators
   /// @return the list of all the default operators
-  function defaultOperators() public view returns (address[]) { return mDefaultOperators; }
+  function defaultOperators() external view returns (address[]) { return mDefaultOperators; }
 
   /// @notice Authorize a third party `_operator` to manage (send) `msg.sender`'s tokens. An operator cannot be reauthorized
   /// @param _operator The operator that wants to be Authorized
-  function authorizeOperator(address _operator) public {
+  function authorizeOperator(address _operator) external {
     require(_operator != msg.sender);
     require(!mAuthorized[_operator][msg.sender]);
 
@@ -122,7 +122,7 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 
   /// @notice Revoke a third party `_operator`'s rights to manage (send) `msg.sender`'s tokens.
   /// @param _operator The operator that wants to be Revoked
-  function revokeOperator(address _operator) public {
+  function revokeOperator(address _operator) external {
     require(_operator != msg.sender);
     require(mAuthorized[_operator][msg.sender]);
 
