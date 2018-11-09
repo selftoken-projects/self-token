@@ -5,7 +5,6 @@
 [![NPM version](https://img.shields.io/badge/npm-6.4.1-orange.svg?style=popout&maxAge=3600)](https://nodejs.org/en/)
 [![Solidity version](https://img.shields.io/badge/Solidity-v0.4.24-ff69b4.svg?style=popout&maxAge=3600)](https://solidity.readthedocs.io/en/v0.4.24/installing-solidity.html)
 
-
 ## linting
 
 We use Solium to lint solidity contracts.

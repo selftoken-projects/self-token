@@ -37,3 +37,6 @@ build/
 
 # truffle
 .node-xmlhttprequest-*
+
+# manticore analysis report
+mcore_*
