@@ -10,7 +10,6 @@ pragma solidity 0.4.24;
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity 0.4.24;
 
 
 interface ERC20Token {
@@ -163,7 +162,6 @@ library Address {
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity 0.4.24;
 
 
 interface ERC777Token {
@@ -208,7 +206,6 @@ interface ERC777Token {
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity 0.4.24;
 
 
 interface ERC777TokensSender {
@@ -232,7 +229,6 @@ interface ERC777TokensSender {
  * Do not use or deploy this code before reviewing it personally first.
  */
 // solhint-disable-next-line compiler-fixed
-pragma solidity 0.4.24;
 
 
 interface ERC777TokensRecipient {
@@ -251,7 +247,6 @@ interface ERC777TokensRecipient {
 /* This Source Code Form is subject to the terms of the Mozilla Public
 * License, v. 2.0. If a copy of the MPL was not distributed with this
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-pragma solidity 0.4.24;
 
 
 
@@ -524,7 +519,6 @@ contract ERC777BaseToken is ERC777Token, ERC820Client {
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-pragma solidity 0.4.24;
 
 
 
