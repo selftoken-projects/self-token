@@ -1254,6 +1254,8 @@ contract Claimable is Ownable {
 
 // File: contracts/SelfToken.sol
 
+/// @title SelfToken
+/// @author Roger Wu (Roger-Wu), Tina Lee (tina1998612), Jeff Hu (yhuag)
 /// @dev The inheritance order is important.
 contract SelfToken is
   ERC777ERC20BaseToken,
@@ -1267,7 +1269,7 @@ contract SelfToken is
 {
   constructor()
     public
-    ERC777ERC20BaseToken("SELF Token", "SELF", 1, new address[](0))
+    ERC777ERC20BaseToken("SELF TOKEN", "SELF", 1, new address[](0))
     CappedMintableERC777ERC20Token(1e9 * 1e18)
   {}
 }
