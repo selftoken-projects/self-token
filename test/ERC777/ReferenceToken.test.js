@@ -29,7 +29,7 @@ contract("SelfToken", function (accounts) {
   });
 
   let selfToken = {
-    name: "SELF Token",
+    name: "SELF TOKEN",
     symbol: "SELF",
     granularity: "1",
     defaultOperators: [],
@@ -40,7 +40,7 @@ contract("SelfToken", function (accounts) {
   };
 
   let _ERC777BaseToken = {
-    name: "SELF Token",
+    name: "SELF TOKEN",
     symbol: "SELF",
     granularity: "1",
     defaultOperators: [],
