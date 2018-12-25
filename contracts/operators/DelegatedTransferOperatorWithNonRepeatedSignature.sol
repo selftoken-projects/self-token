@@ -1,8 +1,13 @@
 pragma solidity 0.4.24;
 
+
 import { ERC777Token } from "../ERC777/ERC777Token.sol";
 
-contract DelegatedTransferOperator {
+/// @title DelegatedTransferOperatorWithNonRepeatedSignature
+/// @author Roger Wu (Roger-Wu)
+/// @dev A DelegatedTransferOperator contract that checks if
+///   a _signature has been used to prevent replay attack.
+contract DelegatedTransferOperatorWithNonRepeatedSignature {
   mapping(bytes => bool) private isSignatureUsed;
   ERC777Token public tokenContract;
 
@@ -64,6 +69,7 @@ contract DelegatedTransferOperator {
       "_signature is invalid."
     );
 
+    // TODO: use increasing nonce to reduce the gas cost
     isSignatureUsed[_signature] = true;
 
     tokenContract.operatorSend(_signer, _to, _value, "", "");

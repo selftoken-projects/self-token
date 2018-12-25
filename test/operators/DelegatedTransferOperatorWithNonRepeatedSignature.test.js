@@ -5,7 +5,7 @@ const BigNumber = web3.BigNumber;
 
 const ERC820Registry = require('erc820');
 const SelfToken = artifacts.require("SelfToken");
-const DelegatedTransferOperator = artifacts.require("DelegatedTransferOperator");
+const DelegatedTransferOperator = artifacts.require("DelegatedTransferOperatorWithNonRepeatedSignature");
 
 const should = require('chai')
   .use(require('chai-as-promised'))
@@ -36,7 +36,7 @@ console.log("alice address should be:", aliceAddress);
 
 let erc820Registry, selfToken, delegatedTransferOperator, token, operator;
 
-contract('DelegatedTransferOperator', function ([
+contract('DelegatedTransferOperatorWithNonRepeatedSignature', function ([
   owner,
   alice,
   bob,
@@ -73,7 +73,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should delegated transfer', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
@@ -110,7 +110,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should delegated transfer if the fee is 0', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
@@ -147,7 +147,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should allow anyone to send delegated transfer when the delegate is address(0)', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = "0x0000000000000000000000000000000000000000";
@@ -185,7 +185,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should fail if the msg.sender is not the delegate', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
@@ -218,7 +218,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should fail if signature is invalid', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
@@ -250,7 +250,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should fail if signature is used', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
@@ -295,7 +295,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should fail if transfer to address(0)', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = "0x0000000000000000000000000000000000000000";
     const delegate = charlie;
@@ -327,7 +327,7 @@ contract('DelegatedTransferOperator', function ([
   });
 
   it('should fail if the v of signature is not 0, 1, 27, 28', async function () {
-    const nonce = 0;
+    const nonce = 1;
     const from = alice;
     const to = bob;
     const delegate = charlie;
