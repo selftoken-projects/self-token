@@ -4,9 +4,15 @@ import { ERC777Token } from "../ERC777/ERC777Token.sol";
 
 contract DelegatedTransferOperator {
   mapping(bytes => bool) private isSignatureUsed;
-  ERC777Token tokenContract;
+  ERC777Token public tokenContract;
 
-  event TransferPreSigned(address indexed from, address indexed to, address indexed delegate, uint256 amount, uint256 fee);
+  event TransferPreSigned(
+    address indexed from,
+    address indexed to,
+    address indexed delegate,
+    uint256 amount,
+    uint256 fee
+  );
 
   constructor(address _tokenAddress) public {
     tokenContract = ERC777Token(_tokenAddress);
@@ -14,8 +20,7 @@ contract DelegatedTransferOperator {
 
   /**
     * @notice Submit a presigned transfer
-    * @param _from address The address of the token holder.
-    * @param _to address The address which you want to transfer to.
+    * @param _to address The address which you want to transfer to. If _to is address(0), the tx will fail when doSend()
     * @param _delegate address The address which is allowed to send this transaction. If _delegate == address(0), then anyone can be the delegate.
     * @param _value uint256 The amount of tokens to be transferred.
     * @param _fee uint256 The amount of tokens paid to msg.sender, by the owner.
@@ -23,7 +28,6 @@ contract DelegatedTransferOperator {
     * @param _signature bytes The signature, issued by the owner.
     */
   function transferPreSigned(
-    address _from,
     address _to,
     address _delegate,
     uint256 _value,
@@ -32,7 +36,6 @@ contract DelegatedTransferOperator {
     bytes _signature
   )
     external
-    returns (bool)
   {
     // A _signature can not be used again.
     require(
@@ -46,39 +49,65 @@ contract DelegatedTransferOperator {
       "address _delegate should be address(0) or msg.sender"
     );
 
-    // address _to should not be address(0)
-    require(
-      _to != address(0),
-      "address _to should not be address(0)"
+    bytes32 _hash = transferPreSignedHashing(
+      address(this),
+      _to,
+      _delegate,
+      _value,
+      _fee,
+      _nonce
     );
 
-    // TODO: check nonce is never used?
+    address _signer = recover(_hash, _signature);
+    require(
+      _signer != address(0),
+      "_signature is invalid."
+    );
 
-    bytes32 delegationHash = keccak256(abi.encodePacked(
-      address(tokenContract),
-      _from,
+    isSignatureUsed[_signature] = true;
+
+    tokenContract.operatorSend(_signer, _to, _value, "", "");
+    if (_fee > 0) {
+      tokenContract.operatorSend(_signer, msg.sender, _fee, "", "");
+    }
+
+    emit TransferPreSigned(_signer, _to, msg.sender, _value, _fee);
+  }
+
+  /**
+    * @notice Hash (keccak256) of the payload used by transferPreSigned
+    * @param _operator address The address of the operator.
+    * @param _to address The address which you want to transfer to.
+    * @param _delegate address The address of the delegate.
+    *   If _delegate == address(0), then anyone can be the delegate.
+    * @param _value uint256 The amount of tokens to be transferred.
+    * @param _fee uint256 The amount of tokens paid to msg.sender, by the owner.
+    * @param _nonce uint256 Presigned transaction number.
+    */
+  function transferPreSignedHashing(
+    address _operator,
+    address _to,
+    address _delegate,
+    uint256 _value,
+    uint256 _fee,
+    uint256 _nonce
+  )
+    public
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encodePacked(
+      _operator,
       _to,
       _delegate,
       _value,
       _fee,
       _nonce
     ));
+  }
 
-    address _signer = recover(delegationHash, _signature);
-    require(
-      _signer == _from,
-      "The delegation signer should be the token holder."
-    );
-
-    isSignatureUsed[_signature] = true;
-
-    tokenContract.operatorSend(_from, _to, _value, "", "");
-    if (_fee > 0) {
-      tokenContract.operatorSend(_from, msg.sender, _fee, "", "");
-    }
-
-    emit TransferPreSigned(_from, _to, msg.sender, _value, _fee);
-    return true;
+  function checkSignatureUsed(bytes _signature) public view returns (bool) {
+    return isSignatureUsed[_signature];
   }
 
   /**

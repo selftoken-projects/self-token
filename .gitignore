@@ -40,3 +40,5 @@ build/
 
 # manticore analysis report
 mcore_*
+
+tmp*
