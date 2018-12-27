@@ -36,8 +36,9 @@ contract DelegatedTransferOperatorWithIncreasingNonce {
     * @notice some rules:
     * 1. If _to is address(0), the tx will fail when doSend().
     * 2. If _delegate == address(0), then anyone can be the delegate.
-    * 3. _nonce must be greater than the last used nonce of the token holder,
+    * 3. _nonce must be greater than the last used nonce by the token holder,
     *    but nonces don't have to be serial numbers.
+    *    We recommend using unix time as nonce.
     */
   function transferPreSigned(
     address _to,
