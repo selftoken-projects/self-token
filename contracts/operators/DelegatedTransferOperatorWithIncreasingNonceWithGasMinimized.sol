@@ -3,12 +3,13 @@ pragma solidity 0.4.24;
 
 import { ERC777Token } from "../ERC777/ERC777Token.sol";
 
-/// @title DelegatedTransferOperatorWithIncreasingNonce
+/// @title DelegatedTransferOperatorWithIncreasingNonceWithGasMinimized
 /// @author Roger Wu (Roger-Wu)
 /// @dev A DelegatedTransferOperator contract that checks if a _nonce
 ///   has been used by a token holder to prevent replay attack.
 ///   It cost less gas to store used nonces than to store used signature
 ///   because it SSTORE the new nonce in the same slot.
+///   Minimize the gas by making functions inline, remove trivial event.
 contract DelegatedTransferOperatorWithIncreasingNonceWithGasMinimized {
   mapping(address => uint256) public usedNonce;
   ERC777Token public tokenContract;
@@ -73,14 +74,16 @@ contract DelegatedTransferOperatorWithIncreasingNonceWithGasMinimized {
     address _signer = (_sig_v != 27 && _sig_v != 28) ?
       address(0) :
       ecrecover(
-        keccak256(abi.encodePacked(
-          address(this),
-          _to,
-          _delegate,
-          _value,
-          _fee,
-          _nonce
-        )),
+        keccak256(
+          abi.encodePacked(
+            address(this),
+            _to,
+            _delegate,
+            _value,
+            _fee,
+            _nonce
+          )
+        ),
         _sig_v, _sig_r, _sig_s
       );
 
@@ -125,14 +128,16 @@ contract DelegatedTransferOperatorWithIncreasingNonceWithGasMinimized {
     pure
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(
-      _operator,
-      _to,
-      _delegate,
-      _value,
-      _fee,
-      _nonce
-    ));
+    return keccak256(
+      abi.encodePacked(
+        _operator,
+        _to,
+        _delegate,
+        _value,
+        _fee,
+        _nonce
+      )
+    );
   }
 
   /**
@@ -140,36 +145,36 @@ contract DelegatedTransferOperatorWithIncreasingNonceWithGasMinimized {
     * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
     * @param sig bytes signature, the signature is generated using web3.eth.sign()
     */
-  // function recover(bytes32 hash, bytes sig) public pure returns (address) {
-  //   bytes32 r;
-  //   bytes32 s;
-  //   uint8 v;
+  function recover(bytes32 hash, bytes sig) public pure returns (address) {
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
 
-  //   // Check the signature length
-  //   if (sig.length != 65) {
-  //     return (address(0));
-  //   }
+    // Check the signature length
+    if (sig.length != 65) {
+      return (address(0));
+    }
 
-  //   // Divide the signature in r, s and v variables
-  //   // ecrecover takes the signature parameters, and the only way to get them
-  //   // currently is to use assembly.
-  //   // solium-disable-next-line security/no-inline-assembly
-  //   assembly {
-  //     r := mload(add(sig, 0x20))
-  //     s := mload(add(sig, 0x40))
-  //     v := byte(0, mload(add(sig, 0x60)))
-  //   }
+    // Divide the signature in r, s and v variables
+    // ecrecover takes the signature parameters, and the only way to get them
+    // currently is to use assembly.
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      r := mload(add(sig, 0x20))
+      s := mload(add(sig, 0x40))
+      v := byte(0, mload(add(sig, 0x60)))
+    }
 
-  //   // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-  //   if (v < 27) {
-  //     v += 27;
-  //   }
+    // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+    if (v < 27) {
+      v += 27;
+    }
 
-  //   // If the version is correct return the signer address
-  //   if (v != 27 && v != 28) {
-  //     return (address(0));
-  //   } else {
-  //     return ecrecover(hash, v, r, s);
-  //   }
-  // }
+    // If the version is correct return the signer address
+    if (v != 27 && v != 28) {
+      return (address(0));
+    } else {
+      return ecrecover(hash, v, r, s);
+    }
+  }
 }

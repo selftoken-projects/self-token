@@ -102,14 +102,16 @@ contract DelegatedTransferOperatorWithNonRepeatedSignature {
     pure
     returns (bytes32)
   {
-    return keccak256(abi.encodePacked(
-      _operator,
-      _to,
-      _delegate,
-      _value,
-      _fee,
-      _nonce
-    ));
+    return keccak256(
+      abi.encodePacked(
+        _operator,
+        _to,
+        _delegate,
+        _value,
+        _fee,
+        _nonce
+      )
+    );
   }
 
   function checkSignatureUsed(bytes _signature) public view returns (bool) {
